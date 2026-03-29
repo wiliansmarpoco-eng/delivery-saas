@@ -6,13 +6,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const dbUrl = process.env.DATABASE_URL;
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl,
   ssl: { rejectUnauthorized: false }
 });
 
 app.get('/', (req, res) => {
   res.send('API ONLINE 🚀');
+});
+
+app.get('/teste-db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ ok: true, agora: result.rows[0] });
+  } catch (err) {
+    console.error('ERRO TESTE-DB:', err);
+    res.status(500).json({
+      erro: 'Erro no banco',
+      detalhe: err.message
+    });
+  }
 });
 
 app.get('/produtos/:slug', async (req, res) => {
@@ -37,10 +52,12 @@ app.get('/produtos/:slug', async (req, res) => {
       empresa: empresa.rows[0],
       produtos: produtos.rows
     });
-
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ erro: 'Erro no servidor' });
+    console.error('ERRO /produtos:', err);
+    res.status(500).json({
+      erro: 'Erro no servidor',
+      detalhe: err.message
+    });
   }
 });
 
