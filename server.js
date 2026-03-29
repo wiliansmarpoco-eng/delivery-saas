@@ -31,10 +31,7 @@ app.get('/teste-db', async (req, res) => {
   }
 });
 
-/* =========================
-   LOGIN EMPRESA
-========================= */
-
+/* LOGIN EMPRESA */
 app.post('/admin/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
@@ -64,6 +61,7 @@ app.post('/admin/login', async (req, res) => {
   }
 });
 
+/* CRIAR EMPRESA */
 app.post('/admin/empresas', async (req, res) => {
   try {
     const { nome, slug, telefone, email, senha, horario } = req.body;
@@ -85,6 +83,7 @@ app.post('/admin/empresas', async (req, res) => {
   }
 });
 
+/* PRODUTOS PÚBLICOS */
 app.get('/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -120,6 +119,7 @@ app.get('/produtos/:slug', async (req, res) => {
   }
 });
 
+/* CRIAR PEDIDO */
 app.post('/pedido/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -184,10 +184,7 @@ Total: R$ ${Number(total).toFixed(2)}`;
   }
 });
 
-/* =========================
-   ADMIN PRODUTOS
-========================= */
-
+/* ADMIN PRODUTOS */
 app.post('/admin/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -269,10 +266,7 @@ app.delete('/admin/produtos/:id', async (req, res) => {
   }
 });
 
-/* =========================
-   ADMIN PEDIDOS
-========================= */
-
+/* ADMIN PEDIDOS */
 app.get('/admin/pedidos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
