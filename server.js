@@ -7,8 +7,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-// 👉 SERVIR FRONTEND
 app.use(express.static(path.join(__dirname)));
 
 const pool = new Pool({
@@ -16,12 +14,10 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// 👉 HOME = SITE
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 👉 TESTE DB
 app.get('/teste-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
@@ -35,7 +31,6 @@ app.get('/teste-db', async (req, res) => {
   }
 });
 
-// 👉 PRODUTOS
 app.get('/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -50,7 +45,7 @@ app.get('/produtos/:slug', async (req, res) => {
     }
 
     const produtos = await pool.query(
-      'SELECT id, nome, preco FROM produtos WHERE empresa_id = $1',
+      'SELECT id, nome, preco, categoria, ativo FROM produtos WHERE empresa_id = $1 ORDER BY id ASC',
       [empresa.rows[0].id]
     );
 
@@ -58,7 +53,6 @@ app.get('/produtos/:slug', async (req, res) => {
       empresa: empresa.rows[0],
       produtos: produtos.rows
     });
-
   } catch (err) {
     console.error('ERRO /produtos:', err);
     res.status(500).json({
@@ -68,7 +62,6 @@ app.get('/produtos/:slug', async (req, res) => {
   }
 });
 
-// 👉 CRIAR PEDIDO + WHATSAPP
 app.post('/pedido/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -86,7 +79,6 @@ app.post('/pedido/:slug', async (req, res) => {
     const empresaId = empresa.rows[0].id;
     const telefoneLoja = empresa.rows[0].telefone;
 
-    // 👉 cria pedido
     const pedido = await pool.query(
       `INSERT INTO pedidos (empresa_id, cliente_nome, whatsapp, endereco, total)
        VALUES ($1, $2, $3, $4, $5)
@@ -96,7 +88,6 @@ app.post('/pedido/:slug', async (req, res) => {
 
     const pedidoId = pedido.rows[0].id;
 
-    // 👉 itens
     for (const item of itens) {
       await pool.query(
         `INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco)
@@ -105,7 +96,6 @@ app.post('/pedido/:slug', async (req, res) => {
       );
     }
 
-    // 👉 mensagem WhatsApp
     const itensTexto = itens
       .map(item => `• ${item.qtd}x ${item.nome} - R$ ${Number(item.preco).toFixed(2)}`)
       .join('\n');
@@ -127,7 +117,6 @@ Total: R$ ${Number(total).toFixed(2)}`;
       pedido_id: pedidoId,
       whatsapp: linkWhatsapp
     });
-
   } catch (err) {
     console.error('ERRO /pedido:', err);
     res.status(500).json({
@@ -137,7 +126,91 @@ Total: R$ ${Number(total).toFixed(2)}`;
   }
 });
 
-// 👉 PORTA
+/* =========================
+   ADMIN PRODUTOS
+========================= */
+
+app.post('/admin/produtos/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { nome, preco, categoria, ativo } = req.body;
+
+    const empresa = await pool.query(
+      'SELECT id FROM empresas WHERE slug = $1',
+      [slug]
+    );
+
+    if (empresa.rows.length === 0) {
+      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO produtos (empresa_id, nome, preco, categoria, ativo)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [empresa.rows[0].id, nome, preco, categoria || 'Geral', ativo ?? true]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('ERRO POST /admin/produtos:', err);
+    res.status(500).json({
+      erro: 'Erro ao criar produto',
+      detalhe: err.message
+    });
+  }
+});
+
+app.put('/admin/produtos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, preco, categoria, ativo } = req.body;
+
+    const result = await pool.query(
+      `UPDATE produtos
+       SET nome = $1, preco = $2, categoria = $3, ativo = $4
+       WHERE id = $5
+       RETURNING *`,
+      [nome, preco, categoria || 'Geral', ativo ?? true, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Produto não encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('ERRO PUT /admin/produtos:', err);
+    res.status(500).json({
+      erro: 'Erro ao atualizar produto',
+      detalhe: err.message
+    });
+  }
+});
+
+app.delete('/admin/produtos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM produtos WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Produto não encontrado' });
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('ERRO DELETE /admin/produtos:', err);
+    res.status(500).json({
+      erro: 'Erro ao remover produto',
+      detalhe: err.message
+    });
+  }
+});
+
 app.listen(process.env.PORT || 3000, () => {
   console.log('Servidor rodando 🚀');
 });
