@@ -31,6 +31,60 @@ app.get('/teste-db', async (req, res) => {
   }
 });
 
+/* =========================
+   LOGIN EMPRESA
+========================= */
+
+app.post('/admin/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    const result = await pool.query(
+      `SELECT id, nome, slug, telefone, email, horario, aberta
+       FROM empresas
+       WHERE email = $1 AND senha = $2
+       LIMIT 1`,
+      [email, senha]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ erro: 'Email ou senha inválidos' });
+    }
+
+    res.json({
+      ok: true,
+      empresa: result.rows[0]
+    });
+  } catch (err) {
+    console.error('ERRO /admin/login:', err);
+    res.status(500).json({
+      erro: 'Erro no login',
+      detalhe: err.message
+    });
+  }
+});
+
+app.post('/admin/empresas', async (req, res) => {
+  try {
+    const { nome, slug, telefone, email, senha, horario } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO empresas (nome, slug, telefone, email, senha, horario, aberta)
+       VALUES ($1, $2, $3, $4, $5, $6, true)
+       RETURNING id, nome, slug, telefone, email, horario, aberta`,
+      [nome, slug, telefone, email, senha, horario || '06:00 às 22:00']
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('ERRO POST /admin/empresas:', err);
+    res.status(500).json({
+      erro: 'Erro ao criar empresa',
+      detalhe: err.message
+    });
+  }
+});
+
 app.get('/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -45,7 +99,11 @@ app.get('/produtos/:slug', async (req, res) => {
     }
 
     const produtos = await pool.query(
-      'SELECT id, nome, preco, categoria, ativo FROM produtos WHERE empresa_id = $1 ORDER BY id ASC',
+      `SELECT id, nome, preco, categoria, ativo
+       FROM produtos
+       WHERE empresa_id = $1
+       AND (ativo = true OR ativo IS NULL)
+       ORDER BY id ASC`,
       [empresa.rows[0].id]
     );
 
@@ -80,8 +138,8 @@ app.post('/pedido/:slug', async (req, res) => {
     const telefoneLoja = empresa.rows[0].telefone;
 
     const pedido = await pool.query(
-      `INSERT INTO pedidos (empresa_id, cliente_nome, whatsapp, endereco, total)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO pedidos (empresa_id, cliente_nome, whatsapp, endereco, total, status)
+       VALUES ($1, $2, $3, $4, $5, 'Pendente')
        RETURNING id`,
       [empresaId, nome, whatsapp, endereco, total]
     );
@@ -125,6 +183,10 @@ Total: R$ ${Number(total).toFixed(2)}`;
     });
   }
 });
+
+/* =========================
+   ADMIN PRODUTOS
+========================= */
 
 app.post('/admin/produtos/:slug', async (req, res) => {
   try {
@@ -206,6 +268,10 @@ app.delete('/admin/produtos/:id', async (req, res) => {
     });
   }
 });
+
+/* =========================
+   ADMIN PEDIDOS
+========================= */
 
 app.get('/admin/pedidos/:slug', async (req, res) => {
   try {
