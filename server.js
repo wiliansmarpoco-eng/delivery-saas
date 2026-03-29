@@ -210,7 +210,63 @@ app.delete('/admin/produtos/:id', async (req, res) => {
     });
   }
 });
+app.get('/admin/pedidos/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
 
+    const empresa = await pool.query(
+      'SELECT id FROM empresas WHERE slug = $1',
+      [slug]
+    );
+
+    if (empresa.rows.length === 0) {
+      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    }
+
+    const pedidos = await pool.query(
+      `SELECT id, cliente_nome, whatsapp, endereco, total, status
+       FROM pedidos
+       WHERE empresa_id = $1
+       ORDER BY id DESC`,
+      [empresa.rows[0].id]
+    );
+
+    res.json({ pedidos: pedidos.rows });
+  } catch (err) {
+    console.error('ERRO GET /admin/pedidos:', err);
+    res.status(500).json({
+      erro: 'Erro ao buscar pedidos',
+      detalhe: err.message
+    });
+  }
+});
+
+app.put('/admin/pedidos/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await pool.query(
+      `UPDATE pedidos
+       SET status = $1
+       WHERE id = $2
+       RETURNING *`,
+      [status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Pedido não encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('ERRO PUT /admin/pedidos/:id/status:', err);
+    res.status(500).json({
+      erro: 'Erro ao atualizar status',
+      detalhe: err.message
+    });
+  }
+});
 app.listen(process.env.PORT || 3000, () => {
   console.log('Servidor rodando 🚀');
 });
