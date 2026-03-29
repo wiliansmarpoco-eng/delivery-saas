@@ -1,344 +1,197 @@
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardápio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/teste-db', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ ok: true, agora: result.rows[0] });
-  } catch (err) {
-    console.error('ERRO TESTE-DB:', err);
-    res.status(500).json({
-      erro: 'Erro no banco',
-      detalhe: err.message
-    });
-  }
-});
-
-/* =========================
-   LOGIN EMPRESA
-========================= */
-
-app.post('/admin/login', async (req, res) => {
-  try {
-    const { email, senha } = req.body;
-
-    const result = await pool.query(
-      `SELECT id, nome, slug, telefone, email, horario, aberta
-       FROM empresas
-       WHERE email = $1 AND senha = $2
-       LIMIT 1`,
-      [email, senha]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ erro: 'Email ou senha inválidos' });
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
     }
 
-    res.json({
-      ok: true,
-      empresa: result.rows[0]
-    });
-  } catch (err) {
-    console.error('ERRO /admin/login:', err);
-    res.status(500).json({
-      erro: 'Erro no login',
-      detalhe: err.message
-    });
-  }
-});
-
-app.post('/admin/empresas', async (req, res) => {
-  try {
-    const { nome, slug, telefone, email, senha, horario } = req.body;
-
-    const result = await pool.query(
-      `INSERT INTO empresas (nome, slug, telefone, email, senha, horario, aberta)
-       VALUES ($1, $2, $3, $4, $5, $6, true)
-       RETURNING id, nome, slug, telefone, email, horario, aberta`,
-      [nome, slug, telefone, email, senha, horario || '06:00 às 22:00']
-    );
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('ERRO POST /admin/empresas:', err);
-    res.status(500).json({
-      erro: 'Erro ao criar empresa',
-      detalhe: err.message
-    });
-  }
-});
-
-app.get('/produtos/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-
-    const empresa = await pool.query(
-      'SELECT id, nome, telefone FROM empresas WHERE slug = $1',
-      [slug]
-    );
-
-    if (empresa.rows.length === 0) {
-      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    .container {
+      max-width: 600px;
+      margin: auto;
     }
 
-    const produtos = await pool.query(
-      `SELECT id, nome, preco, categoria, ativo
-       FROM produtos
-       WHERE empresa_id = $1
-       AND (ativo = true OR ativo IS NULL)
-       ORDER BY id ASC`,
-      [empresa.rows[0].id]
-    );
-
-    res.json({
-      empresa: empresa.rows[0],
-      produtos: produtos.rows
-    });
-  } catch (err) {
-    console.error('ERRO /produtos:', err);
-    res.status(500).json({
-      erro: 'Erro no servidor',
-      detalhe: err.message
-    });
-  }
-});
-
-app.post('/pedido/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-    const { nome, whatsapp, endereco, itens, total } = req.body;
-
-    const empresa = await pool.query(
-      'SELECT id, nome, telefone FROM empresas WHERE slug = $1',
-      [slug]
-    );
-
-    if (empresa.rows.length === 0) {
-      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    .header {
+      background: #ff5a00;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    const empresaId = empresa.rows[0].id;
-    const telefoneLoja = empresa.rows[0].telefone;
-
-    const pedido = await pool.query(
-      `INSERT INTO pedidos (empresa_id, cliente_nome, whatsapp, endereco, total, status)
-       VALUES ($1, $2, $3, $4, $5, 'Pendente')
-       RETURNING id`,
-      [empresaId, nome, whatsapp, endereco, total]
-    );
-
-    const pedidoId = pedido.rows[0].id;
-
-    for (const item of itens) {
-      await pool.query(
-        `INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco)
-         VALUES ($1, $2, $3, $4)`,
-        [pedidoId, item.id, item.qtd, item.preco]
-      );
+    .produto {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    const itensTexto = itens
-      .map(item => `• ${item.qtd}x ${item.nome} - R$ ${Number(item.preco).toFixed(2)}`)
-      .join('\n');
-
-    const mensagem = `🛒 Novo Pedido
-Cliente: ${nome}
-WhatsApp: ${whatsapp}
-Endereço: ${endereco}
-
-Itens:
-${itensTexto}
-
-Total: R$ ${Number(total).toFixed(2)}`;
-
-    const linkWhatsapp = `https://wa.me/55${telefoneLoja}?text=${encodeURIComponent(mensagem)}`;
-
-    res.json({
-      ok: true,
-      pedido_id: pedidoId,
-      whatsapp: linkWhatsapp
-    });
-  } catch (err) {
-    console.error('ERRO /pedido:', err);
-    res.status(500).json({
-      erro: 'Erro ao criar pedido',
-      detalhe: err.message
-    });
-  }
-});
-
-/* =========================
-   ADMIN PRODUTOS
-========================= */
-
-app.post('/admin/produtos/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-    const { nome, preco, categoria, ativo } = req.body;
-
-    const empresa = await pool.query(
-      'SELECT id FROM empresas WHERE slug = $1',
-      [slug]
-    );
-
-    if (empresa.rows.length === 0) {
-      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    .btn {
+      background: #ff5a00;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
-    const result = await pool.query(
-      `INSERT INTO produtos (empresa_id, nome, preco, categoria, ativo)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [empresa.rows[0].id, nome, preco, categoria || 'Geral', ativo ?? true]
-    );
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('ERRO POST /admin/produtos:', err);
-    res.status(500).json({
-      erro: 'Erro ao criar produto',
-      detalhe: err.message
-    });
-  }
-});
-
-app.put('/admin/produtos/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nome, preco, categoria, ativo } = req.body;
-
-    const result = await pool.query(
-      `UPDATE produtos
-       SET nome = $1, preco = $2, categoria = $3, ativo = $4
-       WHERE id = $5
-       RETURNING *`,
-      [nome, preco, categoria || 'Geral', ativo ?? true, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ erro: 'Produto não encontrado' });
+    .carrinho {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
     }
 
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('ERRO PUT /admin/produtos:', err);
-    res.status(500).json({
-      erro: 'Erro ao atualizar produto',
-      detalhe: err.message
-    });
-  }
-});
-
-app.delete('/admin/produtos/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const result = await pool.query(
-      'DELETE FROM produtos WHERE id = $1 RETURNING *',
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ erro: 'Produto não encontrado' });
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
 
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('ERRO DELETE /admin/produtos:', err);
-    res.status(500).json({
-      erro: 'Erro ao remover produto',
-      detalhe: err.message
-    });
-  }
-});
-
-/* =========================
-   ADMIN PEDIDOS
-========================= */
-
-app.get('/admin/pedidos/:slug', async (req, res) => {
-  try {
-    const { slug } = req.params;
-
-    const empresa = await pool.query(
-      'SELECT id FROM empresas WHERE slug = $1',
-      [slug]
-    );
-
-    if (empresa.rows.length === 0) {
-      return res.status(404).json({ erro: 'Empresa não encontrada' });
+    .finalizar {
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      background: green;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
     }
+  </style>
+</head>
 
-    const pedidos = await pool.query(
-      `SELECT id, cliente_nome, whatsapp, endereco, total, status
-       FROM pedidos
-       WHERE empresa_id = $1
-       ORDER BY 
-         CASE 
-           WHEN status = 'Pendente' THEN 1
-           WHEN status = 'Aceito' THEN 2
-           WHEN status = 'Saiu para entrega' THEN 3
-           WHEN status = 'Entregue' THEN 4
-           ELSE 5
-         END,
-         id DESC`,
-      [empresa.rows[0].id]
-    );
+<body>
+  <div class="container">
 
-    res.json({ pedidos: pedidos.rows });
-  } catch (err) {
-    console.error('ERRO GET /admin/pedidos:', err);
-    res.status(500).json({
-      erro: 'Erro ao buscar pedidos',
-      detalhe: err.message
-    });
+    <div class="header">
+      <h2 id="nomeLoja">Carregando...</h2>
+    </div>
+
+    <div id="produtos"></div>
+
+    <div class="carrinho">
+      <h3>Carrinho</h3>
+      <div id="listaCarrinho"></div>
+      <p><strong>Total: R$ <span id="total">0.00</span></strong></p>
+
+      <input id="nome" placeholder="Seu nome">
+      <input id="whatsapp" placeholder="WhatsApp">
+      <input id="endereco" placeholder="Endereço">
+
+      <button class="finalizar" onclick="finalizarPedido()">
+        Finalizar Pedido
+      </button>
+    </div>
+
+  </div>
+
+<script>
+const API = "https://delivery-saas-production-caba.up.railway.app";
+
+// pega o slug da URL
+const slug = window.location.pathname.split("/").pop() || "super-feliz";
+
+let carrinho = [];
+
+async function carregar() {
+  const res = await fetch(`${API}/produtos/${slug}`);
+  const data = await res.json();
+
+  document.getElementById("nomeLoja").innerText = data.empresa.nome;
+
+  const container = document.getElementById("produtos");
+  container.innerHTML = "";
+
+  data.produtos.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "produto";
+
+    div.innerHTML = `
+      <div>
+        <strong>${p.nome}</strong><br>
+        R$ ${Number(p.preco).toFixed(2).replace(".", ",")}
+      </div>
+      <button class="btn" onclick="add(${p.id}, '${p.nome}', ${p.preco})">
+        +
+      </button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function add(id, nome, preco) {
+  const item = carrinho.find(i => i.id === id);
+
+  if (item) {
+    item.qtd++;
+  } else {
+    carrinho.push({ id, nome, preco, qtd: 1 });
   }
-});
 
-app.put('/admin/pedidos/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
+  renderCarrinho();
+}
 
-    const result = await pool.query(
-      `UPDATE pedidos
-       SET status = $1
-       WHERE id = $2
-       RETURNING *`,
-      [status, id]
-    );
+function renderCarrinho() {
+  const lista = document.getElementById("listaCarrinho");
+  lista.innerHTML = "";
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ erro: 'Pedido não encontrado' });
-    }
+  let total = 0;
 
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error('ERRO PUT /admin/pedidos/:id/status:', err);
-    res.status(500).json({
-      erro: 'Erro ao atualizar status',
-      detalhe: err.message
-    });
-  }
-});
+  carrinho.forEach(item => {
+    total += item.preco * item.qtd;
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log('Servidor rodando 🚀');
-});
+    const div = document.createElement("div");
+    div.innerText = `${item.qtd}x ${item.nome}`;
+    lista.appendChild(div);
+  });
+
+  document.getElementById("total").innerText = total.toFixed(2);
+}
+
+async function finalizarPedido() {
+  const nome = document.getElementById("nome").value;
+  const whatsapp = document.getElementById("whatsapp").value;
+  const endereco = document.getElementById("endereco").value;
+
+  const total = carrinho.reduce((s, i) => s + i.preco * i.qtd, 0);
+
+  const res = await fetch(`${API}/pedido/${slug}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nome,
+      whatsapp,
+      endereco,
+      itens: carrinho,
+      total
+    })
+  });
+
+  const data = await res.json();
+
+  window.open(data.whatsapp, "_blank");
+}
+
+carregar();
+</script>
+
+</body>
+</html>
