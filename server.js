@@ -1,20 +1,27 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const path = require('path');
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
+
+// 👉 SERVIR FRONTEND
+app.use(express.static(path.join(__dirname)));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
+// 👉 HOME = SITE
 app.get('/', (req, res) => {
-  res.send('API ONLINE 🚀');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// 👉 TESTE DB
 app.get('/teste-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
@@ -28,6 +35,7 @@ app.get('/teste-db', async (req, res) => {
   }
 });
 
+// 👉 PRODUTOS
 app.get('/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -50,6 +58,7 @@ app.get('/produtos/:slug', async (req, res) => {
       empresa: empresa.rows[0],
       produtos: produtos.rows
     });
+
   } catch (err) {
     console.error('ERRO /produtos:', err);
     res.status(500).json({
@@ -59,6 +68,7 @@ app.get('/produtos/:slug', async (req, res) => {
   }
 });
 
+// 👉 CRIAR PEDIDO + WHATSAPP
 app.post('/pedido/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -76,6 +86,7 @@ app.post('/pedido/:slug', async (req, res) => {
     const empresaId = empresa.rows[0].id;
     const telefoneLoja = empresa.rows[0].telefone;
 
+    // 👉 cria pedido
     const pedido = await pool.query(
       `INSERT INTO pedidos (empresa_id, cliente_nome, whatsapp, endereco, total)
        VALUES ($1, $2, $3, $4, $5)
@@ -85,6 +96,7 @@ app.post('/pedido/:slug', async (req, res) => {
 
     const pedidoId = pedido.rows[0].id;
 
+    // 👉 itens
     for (const item of itens) {
       await pool.query(
         `INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco)
@@ -93,6 +105,7 @@ app.post('/pedido/:slug', async (req, res) => {
       );
     }
 
+    // 👉 mensagem WhatsApp
     const itensTexto = itens
       .map(item => `• ${item.qtd}x ${item.nome} - R$ ${Number(item.preco).toFixed(2)}`)
       .join('\n');
@@ -114,6 +127,7 @@ Total: R$ ${Number(total).toFixed(2)}`;
       pedido_id: pedidoId,
       whatsapp: linkWhatsapp
     });
+
   } catch (err) {
     console.error('ERRO /pedido:', err);
     res.status(500).json({
@@ -123,6 +137,7 @@ Total: R$ ${Number(total).toFixed(2)}`;
   }
 });
 
+// 👉 PORTA
 app.listen(process.env.PORT || 3000, () => {
-  console.log('Servidor rodando');
+  console.log('Servidor rodando 🚀');
 });
