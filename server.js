@@ -126,10 +126,6 @@ Total: R$ ${Number(total).toFixed(2)}`;
   }
 });
 
-/* =========================
-   ADMIN PRODUTOS
-========================= */
-
 app.post('/admin/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -210,6 +206,7 @@ app.delete('/admin/produtos/:id', async (req, res) => {
     });
   }
 });
+
 app.get('/admin/pedidos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -227,7 +224,15 @@ app.get('/admin/pedidos/:slug', async (req, res) => {
       `SELECT id, cliente_nome, whatsapp, endereco, total, status
        FROM pedidos
        WHERE empresa_id = $1
-       ORDER BY id DESC`,
+       ORDER BY 
+         CASE 
+           WHEN status = 'Pendente' THEN 1
+           WHEN status = 'Aceito' THEN 2
+           WHEN status = 'Saiu para entrega' THEN 3
+           WHEN status = 'Entregue' THEN 4
+           ELSE 5
+         END,
+         id DESC`,
       [empresa.rows[0].id]
     );
 
@@ -267,6 +272,7 @@ app.put('/admin/pedidos/:id/status', async (req, res) => {
     });
   }
 });
+
 app.listen(process.env.PORT || 3000, () => {
   console.log('Servidor rodando 🚀');
 });
