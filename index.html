@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Feliz Super Mercado</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      background: #ff5a00;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 15px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .produtos, .carrinho-box {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .titulo {
+      font-size: 22px;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .produto {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 14px 0;
+      gap: 10px;
+    }
+
+    .produto:last-child {
+      border-bottom: none;
+    }
+
+    .produto-info h3 {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .produto-info p {
+      color: #ff5a00;
+      font-weight: bold;
+    }
+
+    .btn {
+      background: #ff5a00;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .carrinho-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      gap: 10px;
+    }
+
+    .carrinho-item:last-child {
+      border-bottom: none;
+    }
+
+    .qtd-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qtd-btn {
+      background: #eee;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .total {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ff5a00;
+    }
+
+    .form-group {
+      margin-top: 12px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      resize: vertical;
+    }
+
+    .finalizar {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 16px;
+    }
+
+    .vazio {
+      color: #777;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="nomeEmpresa">Carregando loja...</header>
+
+  <div class="container">
+    <section class="produtos">
+      <div class="titulo">Cardápio</div>
+      <div id="listaProdutos">Carregando produtos...</div>
+    </section>
+
+    <aside class="carrinho-box">
+      <div class="titulo">Carrinho</div>
+      <div id="carrinho"></div>
+      <div class="total" id="total">Total: R$ 0,00</div>
+
+      <div class="form-group">
+        <input type="text" id="nome" placeholder="Seu nome" />
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="whatsapp" placeholder="Seu WhatsApp" />
+      </div>
+
+      <div class="form-group">
+        <textarea id="endereco" rows="3" placeholder="Seu endereço"></textarea>
+      </div>
+
+      <button class="btn finalizar" onclick="finalizarPedido()">Finalizar no WhatsApp</button>
+    </aside>
+  </div>
+
+  <script>
+    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
+    const SLUG = "super-feliz";
+
+    let produtos = [];
+    let carrinho = [];
+
+    async function carregarProdutos() {
+      try {
+        const resposta = await fetch(`${API_URL}/produtos/${SLUG}`);
+        const dados = await resposta.json();
+
+        document.getElementById("nomeEmpresa").innerText = dados.empresa.nome;
+        produtos = dados.produtos;
+
+        const lista = document.getElementById("listaProdutos");
+        lista.innerHTML = "";
+
+        produtos.forEach(produto => {
+          const div = document.createElement("div");
+          div.className = "produto";
+          div.innerHTML = `
+            <div class="produto-info">
+              <h3>${produto.nome}</h3>
+              <p>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</p>
+            </div>
+            <button class="btn" onclick="adicionarAoCarrinho(${produto.id})">Adicionar</button>
+          `;
+          lista.appendChild(div);
+        });
+      } catch (error) {
+        document.getElementById("listaProdutos").innerHTML = "Erro ao carregar produtos.";
+        console.error(error);
+      }
+    }
+
+    function adicionarAoCarrinho(produtoId) {
+      const produto = produtos.find(p => p.id === produtoId);
+      const existente = carrinho.find(item => item.id === produtoId);
+
+      if (existente) {
+        existente.qtd += 1;
+      } else {
+        carrinho.push({
+          id: produto.id,
+          nome: produto.nome,
+          preco: Number(produto.preco),
+          qtd: 1
+        });
+      }
+
+      renderizarCarrinho();
+    }
+
+    function aumentarQtd(produtoId) {
+      const item = carrinho.find(i => i.id === produtoId);
+      if (item) item.qtd += 1;
+      renderizarCarrinho();
+    }
+
+    function diminuirQtd(produtoId) {
+      const item = carrinho.find(i => i.id === produtoId);
+      if (!item) return;
+
+      item.qtd -= 1;
+
+      if (item.qtd <= 0) {
+        carrinho = carrinho.filter(i => i.id !== produtoId);
+      }
+
+      renderizarCarrinho();
+    }
+
+    function renderizarCarrinho() {
+      const carrinhoDiv = document.getElementById("carrinho");
+      const totalDiv = document.getElementById("total");
+
+      carrinhoDiv.innerHTML = "";
+
+      if (carrinho.length === 0) {
+        carrinhoDiv.innerHTML = '<div class="vazio">Seu carrinho está vazio.</div>';
+        totalDiv.innerText = "Total: R$ 0,00";
+        return;
+      }
+
+      carrinho.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "carrinho-item";
+        div.innerHTML = `
+          <div>
+            <strong>${item.nome}</strong><br>
+            <small>R$ ${item.preco.toFixed(2).replace(".", ",")}</small>
+          </div>
+          <div class="qtd-box">
+            <button class="qtd-btn" onclick="diminuirQtd(${item.id})">-</button>
+            <span>${item.qtd}</span>
+            <button class="qtd-btn" onclick="aumentarQtd(${item.id})">+</button>
+          </div>
+        `;
+        carrinhoDiv.appendChild(div);
+      });
+
+      const total = carrinho.reduce((soma, item) => soma + item.preco * item.qtd, 0);
+      totalDiv.innerText = `Total: R$ ${total.toFixed(2).replace(".", ",")}`;
+    }
+
+    async function finalizarPedido() {
+      const nome = document.getElementById("nome").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const endereco = document.getElementById("endereco").value.trim();
+
+      if (!nome || !whatsapp || !endereco) {
+        alert("Preencha nome, WhatsApp e endereço.");
+        return;
+      }
+
+      if (carrinho.length === 0) {
+        alert("Adicione produtos ao carrinho.");
+        return;
+      }
+
+      const total = carrinho.reduce((soma, item) => soma + item.preco * item.qtd, 0);
+
+      try {
+        const resposta = await fetch(`${API_URL}/pedido/${SLUG}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            nome,
+            whatsapp,
+            endereco,
+            itens: carrinho,
+            total
+          })
+        });
+
+        const dados = await resposta.json();
+
+        if (dados.whatsapp) {
+          window.open(dados.whatsapp, "_blank");
+        } else {
+          alert("Pedido enviado, mas não foi possível abrir o WhatsApp.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao finalizar pedido.");
+      }
+    }
+
+    carregarProdutos();
+    renderizarCarrinho();
+  </script>
+</body>
+</html>
