@@ -31,13 +31,13 @@ app.get('/teste-db', async (req, res) => {
   }
 });
 
-/* LOGIN EMPRESA */
+/* LOGIN */
 app.post('/admin/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
 
     const result = await pool.query(
-      `SELECT id, nome, slug, telefone, email, horario, aberta
+      `SELECT id, nome, slug, telefone, email, horario, aberta, tipo
        FROM empresas
        WHERE email = $1 AND senha = $2
        LIMIT 1`,
@@ -64,13 +64,21 @@ app.post('/admin/login', async (req, res) => {
 /* CRIAR EMPRESA */
 app.post('/admin/empresas', async (req, res) => {
   try {
-    const { nome, slug, telefone, email, senha, horario } = req.body;
+    const { nome, slug, telefone, email, senha, horario, tipo } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO empresas (nome, slug, telefone, email, senha, horario, aberta)
-       VALUES ($1, $2, $3, $4, $5, $6, true)
-       RETURNING id, nome, slug, telefone, email, horario, aberta`,
-      [nome, slug, telefone, email, senha, horario || '06:00 às 22:00']
+      `INSERT INTO empresas (nome, slug, telefone, email, senha, horario, aberta, tipo)
+       VALUES ($1, $2, $3, $4, $5, $6, true, $7)
+       RETURNING id, nome, slug, telefone, email, horario, aberta, tipo`,
+      [
+        nome,
+        slug,
+        telefone,
+        email,
+        senha,
+        horario || '06:00 às 22:00',
+        tipo || 'loja'
+      ]
     );
 
     res.json(result.rows[0]);
