@@ -54,12 +54,13 @@
       box-shadow: 0 8px 18px rgba(255,87,34,0.25);
     }
 
-    .sidebar-footer { margin-top: auto; }
+    .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
     .sidebar-footer button {
       width: 100%; padding: 14px; border: none; border-radius: 14px;
-      background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white; font-weight: bold; cursor: pointer;
     }
+    .btn-atualizar { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .btn-sair { background: #334155; }
 
     .main { flex: 1; padding: 28px; }
 
@@ -336,7 +337,8 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button onclick="location.reload()">Atualizar painel</button>
+        <button class="btn-sair" onclick="logout()">Sair</button>
+        <button class="btn-atualizar" onclick="location.reload()">Atualizar painel</button>
       </div>
     </aside>
 
@@ -520,9 +522,15 @@
   </div>
 
   <script>
-    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
-    const EMPRESA_ID = 1;
-    const SLUG = "super-feliz";
+    const API_URL = window.location.origin;
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!usuario) {
+      window.location.href = "/login.html";
+    }
+
+    const EMPRESA_ID = usuario.empresa_id;
+    let SLUG = usuario.slug;
 
     let empresa = null;
     let produtos = [];
@@ -534,6 +542,11 @@
     let bannerAtual = "";
     let ultimoMaiorPedidoId = 0;
     let filtroPedidoAtual = "todos";
+
+    function logout() {
+      localStorage.removeItem("usuario");
+      window.location.href = "/login.html";
+    }
 
     function formatarPreco(valor) {
       return Number(valor || 0).toFixed(2).replace(".", ",");
@@ -668,9 +681,10 @@
     }
 
     async function carregarEmpresa() {
-      const res = await fetch(`${API_URL}/produtos/${SLUG}`);
+      const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`);
       const data = await res.json();
       empresa = data.empresa;
+      SLUG = empresa.slug;
 
       document.getElementById("pillLoja").textContent = `Loja logada: ${empresa.nome}`;
       document.getElementById("sidebarLoja").innerHTML = `
