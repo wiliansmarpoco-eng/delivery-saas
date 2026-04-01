@@ -601,7 +601,7 @@
         <p><strong>Status:</strong> ${empresa.aberta ? "Aberto" : "Fechado"}</p>
       `;
 
-      const linkCardapio = `${API_URL}/`;
+      const linkCardapio = `${API_URL}/produtos/${SLUG}`;
 
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(linkCardapio)}`;
 
