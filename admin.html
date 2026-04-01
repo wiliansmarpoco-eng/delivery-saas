@@ -269,7 +269,8 @@
 
     .produto-card,
     .pedido-card,
-    .categoria-card {
+    .categoria-card,
+    .pedido-resumo {
       border: 1px solid #edf2f7;
       background: white;
       border-radius: 18px;
@@ -338,7 +339,18 @@
       color: #9a3412;
     }
 
-    .pedido-card h4 {
+    .tag.blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .tag.red {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .pedido-card h4,
+    .pedido-resumo h4 {
       margin-bottom: 8px;
       font-size: 18px;
     }
@@ -576,8 +588,15 @@
       return `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
     }
 
-    function mensagemStatusPedido(pedido, status) {
-      return `Olá, ${pedido.cliente_nome}! Seu pedido #${pedido.id} na loja ${empresa.nome} agora está com o status: ${status}.`;
+    function tagStatus(status) {
+      const s = String(status || "").toLowerCase();
+
+      if (s.includes("novo")) return `<span class="tag orange">${status}</span>`;
+      if (s.includes("aceito")) return `<span class="tag blue">${status}</span>`;
+      if (s.includes("preparando")) return `<span class="tag orange">${status}</span>`;
+      if (s.includes("saiu")) return `<span class="tag blue">${status}</span>`;
+      if (s.includes("entregue")) return `<span class="tag green">${status}</span>`;
+      return `<span class="tag">${status}</span>`;
     }
 
     async function carregarEmpresa() {
@@ -602,7 +621,6 @@
       `;
 
       const linkCardapio = `${API_URL}/produtos/${SLUG}`;
-
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(linkCardapio)}`;
 
       document.getElementById("dadosLoja").innerHTML = `
@@ -777,7 +795,7 @@
 
       document.getElementById("statPedidos").textContent = pedidos.length;
       document.getElementById("statPendentes").textContent =
-        pedidos.filter(p => p.status === "novo").length;
+        pedidos.filter(p => String(p.status).toLowerCase() === "novo").length;
 
       const faturamento = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
       document.getElementById("statFaturamento").textContent = `R$ ${formatarPreco(faturamento)}`;
@@ -791,13 +809,22 @@
         return;
       }
 
-      const pedidosHtml = pedidos.map(p => `
+      dash.innerHTML = pedidos.slice(0, 5).map(p => `
+        <div class="pedido-resumo">
+          <h4>Pedido #${p.id}</h4>
+          <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
+          <div class="pedido-meta"><strong>Status:</strong> ${tagStatus(p.status)}</div>
+          <div class="pedido-meta"><strong>Total:</strong> R$ ${formatarPreco(p.total)}</div>
+        </div>
+      `).join("");
+
+      lista.innerHTML = pedidos.map(p => `
         <div class="pedido-card">
           <h4>Pedido #${p.id}</h4>
           <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
           <div class="pedido-meta"><strong>WhatsApp:</strong> ${p.cliente_whatsapp}</div>
           <div class="pedido-meta"><strong>Endereço:</strong> ${p.endereco}</div>
-          <div class="pedido-meta"><strong>Status:</strong> <span class="tag">${p.status}</span></div>
+          <div class="pedido-meta"><strong>Status:</strong> ${tagStatus(p.status)}</div>
           <div class="pedido-meta"><strong>Total:</strong> R$ ${formatarPreco(p.total)}</div>
 
           <div class="pedido-itens">
@@ -810,17 +837,14 @@
           </div>
 
           <div class="btn-row">
-            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Aceitar</button>
-            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Preparando</button>
-            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu para entrega', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Saiu para entrega</button>
-            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Entregue</button>
+            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito')">Aceitar</button>
+            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando')">Preparando</button>
+            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu para entrega')">Saiu para entrega</button>
+            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue')">Entregue</button>
             <button class="btn btn-whats" onclick="abrirWhatsappCliente(${p.id}, '${p.cliente_whatsapp}', '${p.cliente_nome}', '${p.status}')">WhatsApp cliente</button>
           </div>
         </div>
       `).join("");
-
-      dash.innerHTML = pedidosHtml;
-      lista.innerHTML = pedidosHtml;
     }
 
     function abrirWhatsappCliente(id, whatsapp, clienteNome, status) {
@@ -829,16 +853,12 @@
       window.open(link, "_blank");
     }
 
-    async function mudarStatus(id, status, whatsapp, clienteNome) {
+    async function mudarStatus(id, status) {
       await fetch(`${API_URL}/admin/pedidos/${id}/status`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ status })
       });
-
-      const mensagem = `Olá, ${clienteNome}! Seu pedido #${id} na loja ${empresa.nome} agora está com o status: ${status}.`;
-      const link = gerarLinkWhatsapp(whatsapp, mensagem);
-      window.open(link, "_blank");
 
       await carregarPedidos();
     }
