@@ -108,6 +108,30 @@
       color: #991b1b;
     }
 
+    .empresa-acoes {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-whatsapp {
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-whatsapp:hover {
+      background: #15803d;
+    }
+
     .categoria {
       margin-top: 18px;
     }
@@ -156,6 +180,12 @@
     .produto-info h4 {
       font-size: 20px;
       margin-bottom: 6px;
+    }
+
+    .produto-descricao {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
     .produto-preco {
@@ -288,9 +318,25 @@
     }
 
     .mensagem {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 14px;
-      color: #666;
+      color: #166534;
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .erro {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #991b1b;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
     }
 
     @media (max-width: 980px) {
@@ -343,7 +389,9 @@
       <textarea id="endereco" class="textarea" placeholder="Seu endereço"></textarea>
 
       <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar Pedido</button>
+
       <div class="mensagem" id="mensagem"></div>
+      <div class="erro" id="erro"></div>
     </div>
   </div>
 
@@ -353,10 +401,8 @@
     function getSlug() {
       const partes = window.location.pathname.split("/").filter(Boolean);
 
-      // Se abrir pela rota /loja/super-feliz
       if (partes[0] === "loja" && partes[1]) return partes[1];
 
-      // fallback pra teste
       return "super-feliz";
     }
 
@@ -380,6 +426,27 @@
       return grupos;
     }
 
+    function mostrarMensagem(texto) {
+      const mensagem = document.getElementById("mensagem");
+      const erro = document.getElementById("erro");
+      erro.style.display = "none";
+      mensagem.textContent = texto;
+      mensagem.style.display = "block";
+    }
+
+    function mostrarErro(texto) {
+      const mensagem = document.getElementById("mensagem");
+      const erro = document.getElementById("erro");
+      mensagem.style.display = "none";
+      erro.textContent = texto;
+      erro.style.display = "block";
+    }
+
+    function limparAvisos() {
+      document.getElementById("mensagem").style.display = "none";
+      document.getElementById("erro").style.display = "none";
+    }
+
     function renderEmpresa() {
       const box = document.getElementById("empresa-box");
       if (!empresa) {
@@ -390,6 +457,10 @@
       document.getElementById("titulo-loja").textContent = empresa.nome || "Cardápio Online";
       document.getElementById("subtitulo-loja").textContent =
         `${empresa.categoria || "Loja"} • ${empresa.horario || "Horário não informado"}`;
+
+      const whatsappLink = empresa.telefone
+        ? `https://wa.me/55${empresa.telefone}`
+        : "#";
 
       box.innerHTML = `
         <div class="empresa-box">
@@ -406,6 +477,13 @@
             <span class="status ${empresa.aberta ? "aberto" : "fechado"}">
               ${empresa.aberta ? "Aberto" : "Fechado"}
             </span>
+            <div class="empresa-acoes">
+              ${
+                empresa.telefone
+                  ? `<a class="btn-whatsapp" href="${whatsappLink}" target="_blank">Falar com a loja</a>`
+                  : ""
+              }
+            </div>
           </div>
         </div>
       `;
@@ -437,6 +515,7 @@
                 />
                 <div class="produto-info">
                   <h4>${p.nome}</h4>
+                  <div class="produto-descricao">${p.descricao || "Sem descrição"}</div>
                   <div class="produto-preco">R$ ${formatarPreco(p.preco)}</div>
                   <div class="produto-badges">
                     <span class="badge badge-ativo">Ativo</span>
@@ -456,6 +535,7 @@
     }
 
     function adicionarAoCarrinho(id) {
+      limparAvisos();
       const produto = produtos.find((p) => p.id === id);
       if (!produto) return;
 
@@ -521,18 +601,19 @@
     }
 
     async function finalizarPedido() {
+      limparAvisos();
+
       const nome = document.getElementById("nome").value.trim();
       const whatsapp = document.getElementById("whatsapp").value.trim();
       const endereco = document.getElementById("endereco").value.trim();
-      const mensagem = document.getElementById("mensagem");
 
       if (!carrinho.length) {
-        alert("Adicione produtos ao carrinho");
+        mostrarErro("Adicione produtos ao carrinho.");
         return;
       }
 
       if (!nome || !whatsapp || !endereco) {
-        alert("Preencha nome, WhatsApp e endereço");
+        mostrarErro("Preencha nome, WhatsApp e endereço.");
         return;
       }
 
@@ -559,8 +640,7 @@
           throw new Error(data.erro || "Erro ao finalizar pedido");
         }
 
-        mensagem.textContent = "Pedido criado com sucesso. Abrindo WhatsApp...";
-        window.open(data.whatsapp, "_blank");
+        mostrarMensagem(`Pedido #${data.pedido.id} enviado com sucesso! Aguarde a confirmação da loja.`);
 
         carrinho = [];
         renderCarrinho();
@@ -569,7 +649,7 @@
         document.getElementById("whatsapp").value = "";
         document.getElementById("endereco").value = "";
       } catch (error) {
-        alert(error.message);
+        mostrarErro(error.message);
       }
     }
 
