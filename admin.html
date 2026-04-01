@@ -3,312 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel da Loja</title>
+  <title>Painel do Estabelecimento</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background: #f4f6fb; color: #1f2937; }
-
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f5f7fb; color: #1f2937; }
     .layout { display: flex; min-height: 100vh; }
-
     .sidebar {
-      width: 270px;
-      background: linear-gradient(180deg, #0f172a, #172554);
+      width: 280px;
+      background: linear-gradient(180deg, #0f2b66, #081f52);
       color: white;
-      padding: 24px 18px;
+      padding: 22px 18px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+      gap: 14px;
     }
-
-    .brand { display: flex; gap: 14px; align-items: center; }
-    .brand-badge {
-      width: 54px; height: 54px; border-radius: 16px;
+    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .brand-logo {
+      width: 58px; height: 58px; border-radius: 18px;
       background: linear-gradient(135deg, #ff7a18, #ff5722);
       display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 20px; color: white;
-      box-shadow: 0 10px 20px rgba(255, 87, 34, 0.25);
+      font-weight: bold; font-size: 24px;
     }
-    .brand h1 { font-size: 20px; margin-bottom: 4px; }
-    .brand p { font-size: 13px; color: #cbd5e1; }
-
-    .loja-card {
+    .brand-title { font-size: 18px; font-weight: bold; }
+    .brand-subtitle { font-size: 14px; opacity: 0.9; }
+    .store-card {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 18px;
       padding: 16px;
+      line-height: 1.6;
     }
-    .loja-card h3 { font-size: 15px; margin-bottom: 8px; }
-    .loja-card p { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; }
-
-    .menu { display: flex; flex-direction: column; gap: 10px; }
+    .store-card strong { display: block; margin-bottom: 6px; font-size: 15px; }
+    .menu { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
     .menu button {
-      background: transparent; color: white;
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 14px; padding: 14px 16px;
-      text-align: left; font-size: 15px; cursor: pointer; transition: 0.2s;
+      width: 100%; border: none; border-radius: 14px; padding: 14px 16px;
+      text-align: left; background: rgba(255,255,255,0.02);
+      color: white; cursor: pointer; font-size: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
     }
-    .menu button:hover, .menu button.active {
+    .menu button.active {
       background: linear-gradient(135deg, #ff7a18, #ff5722);
-      border-color: transparent;
-      box-shadow: 0 8px 18px rgba(255,87,34,0.25);
+      border: none;
     }
-
-    .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-    .sidebar-footer button {
-      width: 100%; padding: 14px; border: none; border-radius: 14px;
-      color: white; font-weight: bold; cursor: pointer;
+    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-bottom button {
+      width: 100%; border: none; border-radius: 14px;
+      padding: 14px; font-size: 15px; cursor: pointer; font-weight: bold;
     }
-    .btn-atualizar { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    .btn-sair { background: #334155; }
-
-    .main { flex: 1; padding: 28px; }
-
+    .btn-secondary { background: #6b8ecf; color: white; }
+    .btn-primary { background: linear-gradient(135deg, #ff4d6d, #ff7a18); color: white; }
+    .content { flex: 1; padding: 26px; }
     .hero {
-      background: linear-gradient(135deg, #fff7ed, #ffffff);
-      border: 1px solid #fed7aa;
-      border-radius: 24px;
-      padding: 26px;
-      margin-bottom: 22px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+      background: white; border-radius: 24px; padding: 26px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05); margin-bottom: 22px;
     }
-    .hero h2 { font-size: 24px; margin-bottom: 6px; }
-    .hero p { color: #475569; margin-bottom: 14px; }
-    .hero .pill {
-      display: inline-block;
-      padding: 10px 14px;
-      border: 1px solid #fdba74;
-      border-radius: 14px;
-      background: white;
-      color: #9a3412;
-      font-weight: bold;
+    .hero h1 { margin: 0 0 6px; font-size: 24px; }
+    .hero p { margin: 0; color: #6b7280; }
+    .badge {
+      display: inline-block; margin-top: 14px; padding: 10px 16px;
+      border: 1px solid #f7caa8; border-radius: 16px;
+      color: #a85a20; background: #fff7f1; font-weight: bold;
     }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-bottom: 22px;
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 18px; margin-bottom: 22px;
     }
-
     .stat {
-      background: white;
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-      border: 1px solid #eef2f7;
+      background: white; border-radius: 20px; padding: 22px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
     }
-    .stat .label { color: #64748b; font-size: 14px; margin-bottom: 12px; }
-    .stat .value { font-size: 38px; font-weight: bold; color: #0f172a; }
-
-    .tab { display: none; }
-    .tab.active { display: block; }
-
-    .panel {
-      background: white;
-      border-radius: 22px;
-      padding: 22px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-      border: 1px solid #eef2f7;
-      margin-bottom: 22px;
+    .stat-title { color: #6b7280; font-size: 14px; margin-bottom: 12px; }
+    .stat-value { font-size: 26px; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+    .card {
+      background: white; border-radius: 20px; padding: 22px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
     }
-    .panel h3 { font-size: 18px; margin-bottom: 16px; }
-
-    .grid-2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
-    .grid-2-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-
-    .input, .select, .textarea, .file {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #dbe2ea;
-      border-radius: 14px;
-      margin-bottom: 12px;
-      font-size: 14px;
-      background: #fff;
+    .card h2 { margin: 0 0 16px; font-size: 18px; }
+    .pedido-item { padding: 14px 0; border-bottom: 1px solid #eceff4; }
+    .pedido-item:last-child { border-bottom: none; }
+    .pedido-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .pedido-cliente { font-weight: bold; }
+    .pedido-status {
+      padding: 6px 10px; border-radius: 999px; font-size: 12px;
+      font-weight: bold; background: #eef2ff; color: #4338ca;
     }
-    .textarea { min-height: 100px; resize: vertical; }
-
-    .btn {
-      border: none; border-radius: 14px;
-      padding: 13px 16px; cursor: pointer;
-      font-weight: bold; font-size: 14px;
-    }
-    .btn-primary { background: linear-gradient(135deg, #ff7a18, #ff5722); color: white; }
-    .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
-    .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-    .btn-muted { background: #e5e7eb; color: #111827; }
-    .btn-whats { background: linear-gradient(135deg, #22c55e, #15803d); color: white; }
-
-    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-
-    .produto-card, .pedido-card, .categoria-card, .pedido-resumo {
-      border: 1px solid #edf2f7;
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .produto-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .produto-left {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      min-width: 0;
-    }
-
-    .produto-img {
-      width: 72px; height: 72px;
-      border-radius: 14px;
-      object-fit: cover;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-    }
-
-    .produto-info h4 { font-size: 18px; margin-bottom: 6px; }
-    .produto-info p { color: #64748b; font-size: 13px; margin-bottom: 4px; }
-    .preco { color: #ea580c; font-size: 22px; font-weight: bold; }
-
-    .tag {
-      display: inline-block;
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #f1f5f9;
-      color: #334155;
-      font-weight: bold;
-      margin-right: 6px;
-    }
-    .tag.green { background: #dcfce7; color: #166534; }
-    .tag.orange { background: #ffedd5; color: #9a3412; }
-    .tag.blue { background: #dbeafe; color: #1d4ed8; }
-
-    .pedido-card h4, .pedido-resumo h4 { margin-bottom: 8px; font-size: 18px; }
-    .pedido-meta { color: #475569; font-size: 14px; margin-bottom: 6px; }
-
-    .pedido-itens {
-      background: #f8fafc;
-      border-radius: 14px;
-      padding: 12px;
-      margin: 12px 0;
-    }
-
-    .pedido-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .empty { color: #64748b; padding: 18px 0; }
-
-    .loja-box {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .loja-logo {
-      width: 140px; height: 140px;
-      border-radius: 22px;
-      object-fit: cover;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-    }
-
-    .loja-banner {
-      width: 100%;
-      max-width: 420px;
-      height: 140px;
-      border-radius: 22px;
-      object-fit: cover;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      margin-top: 12px;
-    }
-
-    .link-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 14px;
-      word-break: break-all;
-      margin-bottom: 10px;
-    }
-
-    .qr-box {
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      display: inline-block;
-    }
-
-    .qr-box img {
-      width: 180px; height: 180px; display: block;
-    }
-
-    .preview-box {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .preview-box img {
-      width: 110px;
-      height: 110px;
-      object-fit: cover;
-      border-radius: 16px;
-      border: 1px solid #e5e7eb;
-      background: #f3f4f6;
-    }
-
-    .subtitulo {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-
-    .filtro-linha {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .alerta-novo-pedido {
-      display: none;
-      margin-bottom: 18px;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-weight: bold;
-    }
+    .pedido-meta { color: #6b7280; font-size: 14px; line-height: 1.5; }
+    .resumo-linha { margin-bottom: 14px; line-height: 1.6; }
+    .resumo-linha strong { display: inline-block; min-width: 90px; }
 
     @media (max-width: 1100px) {
-      .cards { grid-template-columns: repeat(2, 1fr); }
-      .grid-2, .grid-2-equal { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
     }
-
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       .layout { flex-direction: column; }
       .sidebar { width: 100%; }
-      .cards { grid-template-columns: 1fr; }
-      .produto-card { flex-direction: column; align-items: flex-start; }
-      .loja-box { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -316,213 +109,76 @@
   <div class="layout">
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-badge">PJ</div>
+        <div class="brand-logo">PJ</div>
         <div>
-          <h1>PediJá</h1>
-          <p>Painel do estabelecimento</p>
+          <div class="brand-title">PediJá</div>
+          <div class="brand-subtitle">Painel do estabelecimento</div>
         </div>
       </div>
 
-      <div class="loja-card" id="sidebarLoja">
-        <h3>Carregando loja...</h3>
-        <p>Aguarde...</p>
+      <div class="store-card">
+        <strong id="sidebar-nome">Carregando loja...</strong>
+        <div id="sidebar-categoria">Aguarde...</div>
+        <div id="sidebar-telefone"></div>
+        <div id="sidebar-horario"></div>
       </div>
 
-      <nav class="menu">
-        <button class="active" onclick="trocarTab('dashboard', this)">Dashboard</button>
-        <button onclick="trocarTab('produtos', this)">Produtos</button>
-        <button onclick="trocarTab('categorias', this)">Categorias</button>
-        <button onclick="trocarTab('pedidos', this)">Pedidos</button>
-        <button onclick="trocarTab('loja', this)">Minha loja</button>
-      </nav>
+      <div class="menu">
+        <button class="active">Dashboard</button>
+        <button>Produtos</button>
+        <button>Categorias</button>
+        <button>Pedidos</button>
+        <button>Minha loja</button>
+      </div>
 
-      <div class="sidebar-footer">
-        <button class="btn-sair" onclick="logout()">Sair</button>
-        <button class="btn-atualizar" onclick="location.reload()">Atualizar painel</button>
+      <div class="sidebar-bottom">
+        <button class="btn-secondary" onclick="window.location.reload()">Atualizar painel</button>
+        <button class="btn-primary" onclick="sair()">Sair</button>
       </div>
     </aside>
 
-    <main class="main">
+    <main class="content">
       <section class="hero">
-        <h2>Painel do Estabelecimento</h2>
+        <h1>Painel do Estabelecimento</h1>
         <p>Gerencie produtos, pedidos e sua loja em um só lugar.</p>
-        <span class="pill" id="pillLoja">Loja logada: carregando...</span>
+        <div class="badge" id="hero-loja">Loja logada: carregando...</div>
       </section>
 
-      <div class="alerta-novo-pedido" id="alertaNovoPedido">
-        Novo pedido recebido!
-      </div>
-
-      <section class="cards">
+      <section class="stats">
         <div class="stat">
-          <div class="label">Produtos</div>
-          <div class="value" id="statProdutos">0</div>
+          <div class="stat-title">Produtos</div>
+          <div class="stat-value" id="stat-produtos">0</div>
         </div>
         <div class="stat">
-          <div class="label">Pedidos</div>
-          <div class="value" id="statPedidos">0</div>
+          <div class="stat-title">Pedidos</div>
+          <div class="stat-value" id="stat-pedidos">0</div>
         </div>
         <div class="stat">
-          <div class="label">Pendentes</div>
-          <div class="value" id="statPendentes">0</div>
+          <div class="stat-title">Pendentes</div>
+          <div class="stat-value" id="stat-pendentes">0</div>
         </div>
         <div class="stat">
-          <div class="label">Faturamento</div>
-          <div class="value" id="statFaturamento">R$ 0</div>
+          <div class="stat-title">Faturamento</div>
+          <div class="stat-value" id="stat-faturamento">R$ 0,00</div>
         </div>
       </section>
 
-      <section id="tab-dashboard" class="tab active">
-        <div class="grid-2">
-          <div class="panel">
-            <h3>Últimos pedidos</h3>
-            <div id="dashboardPedidos" class="empty">Carregando...</div>
-          </div>
-
-          <div class="panel">
-            <h3>Resumo da loja</h3>
-            <div id="dashboardResumo" class="empty">Carregando...</div>
-          </div>
+      <section class="grid">
+        <div class="card">
+          <h2>Últimos pedidos</h2>
+          <div id="lista-pedidos">Carregando...</div>
         </div>
-      </section>
 
-      <section id="tab-produtos" class="tab">
-        <div class="grid-2">
-          <div class="panel">
-            <h3>Novo produto</h3>
-            <input id="produtoNome" class="input" placeholder="Nome do produto" />
-            <textarea id="produtoDescricao" class="textarea" placeholder="Descrição"></textarea>
-            <input id="produtoPreco" class="input" placeholder="Preço" />
-            <input id="produtoImagem" class="input" placeholder="URL da imagem" />
-            <div class="subtitulo">Ou escolha uma imagem do computador</div>
-            <input id="produtoImagemArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoProduto(event)" />
-            <div class="preview-box">
-              <img id="previewProduto" src="https://placehold.co/110x110?text=Produto" alt="Preview produto">
-            </div>
-            <select id="produtoCategoria" class="select"></select>
-            <div class="btn-row">
-              <button class="btn btn-primary" onclick="salvarProduto()">Salvar produto</button>
-              <button class="btn btn-muted" onclick="limparFormularioProduto()">Limpar</button>
-            </div>
-          </div>
-
-          <div class="panel">
-            <h3>Lista de produtos</h3>
-            <div id="listaProdutos" class="empty">Carregando...</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tab-categorias" class="tab">
-        <div class="grid-2">
-          <div class="panel">
-            <h3>Nova categoria</h3>
-            <input id="categoriaNome" class="input" placeholder="Nome da categoria" />
-            <button class="btn btn-primary" onclick="salvarCategoria()">Criar categoria</button>
-          </div>
-
-          <div class="panel">
-            <h3>Categorias da loja</h3>
-            <div id="listaCategorias" class="empty">Carregando...</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tab-pedidos" class="tab">
-        <div class="panel">
-          <h3>Pedidos recebidos</h3>
-
-          <div class="filtro-linha">
-            <button class="btn btn-muted" onclick="aplicarFiltroPedidos('todos')">Todos</button>
-            <button class="btn btn-warning" onclick="aplicarFiltroPedidos('novo')">Novo</button>
-            <button class="btn btn-info" onclick="aplicarFiltroPedidos('aceito')">Aceito</button>
-            <button class="btn btn-warning" onclick="aplicarFiltroPedidos('preparando')">Preparando</button>
-            <button class="btn btn-info" onclick="aplicarFiltroPedidos('saiu para entrega')">Saiu</button>
-            <button class="btn btn-success" onclick="aplicarFiltroPedidos('entregue')">Entregue</button>
-          </div>
-
-          <div id="listaPedidos" class="empty">Carregando...</div>
-        </div>
-      </section>
-
-      <section id="tab-loja" class="tab">
-        <div class="grid-2-equal">
-          <div class="panel">
-            <h3>Minha loja</h3>
-            <div id="dadosLoja" class="empty">Carregando...</div>
-          </div>
-
-          <div class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-              <h3>Editar loja</h3>
-              <button class="btn btn-primary" onclick="toggleEditarLoja()" id="btnToggleEditarLoja">
-                Editar loja
-              </button>
-            </div>
-
-            <div id="boxEditarLoja" style="display:none;">
-              <input id="lojaNome" class="input" placeholder="Nome da loja" />
-              <input id="lojaEmail" class="input" placeholder="Email da loja" />
-              <input id="lojaTelefone" class="input" placeholder="Telefone" />
-              <input id="lojaCategoria" class="input" placeholder="Categoria" />
-              <input id="lojaHorario" class="input" placeholder="Horário" />
-
-              <select id="lojaAberta" class="select">
-                <option value="true">Loja aberta</option>
-                <option value="false">Loja fechada</option>
-              </select>
-
-              <input id="lojaLogoUrl" class="input" placeholder="URL da logo (opcional)" />
-              <input id="lojaBannerUrl" class="input" placeholder="URL do banner (opcional)" />
-
-              <div class="subtitulo">Clique na imagem para escolher do computador</div>
-
-              <div class="preview-box">
-                <img
-                  id="previewLogo"
-                  src="https://placehold.co/110x110?text=Logo"
-                  alt="Preview logo"
-                  style="cursor:pointer"
-                  onclick="document.getElementById('lojaLogoArquivo').click()"
-                />
-                <img
-                  id="previewBanner"
-                  src="https://placehold.co/110x110?text=Banner"
-                  alt="Preview banner"
-                  style="cursor:pointer"
-                  onclick="document.getElementById('lojaBannerArquivo').click()"
-                />
-              </div>
-
-              <input
-                id="lojaLogoArquivo"
-                type="file"
-                accept="image/*"
-                style="display:none"
-                onchange="lerArquivoLogo(event)"
-              />
-
-              <input
-                id="lojaBannerArquivo"
-                type="file"
-                accept="image/*"
-                style="display:none"
-                onchange="lerArquivoBanner(event)"
-              />
-
-              <div class="btn-row">
-                <button class="btn btn-success" onclick="salvarLoja()">Salvar alterações</button>
-                <button class="btn btn-muted" onclick="cancelarEdicaoLoja()">Cancelar</button>
-              </div>
-            </div>
-          </div>
+        <div class="card">
+          <h2>Resumo da loja</h2>
+          <div id="resumo-loja">Carregando...</div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    const API_URL = window.location.origin;
+    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     if (!usuario) {
@@ -530,577 +186,104 @@
     }
 
     const EMPRESA_ID = usuario.empresa_id;
-    let SLUG = usuario.slug;
 
-    let empresa = null;
-    let produtos = [];
-    let categorias = [];
-    let pedidos = [];
-    let editandoProdutoId = null;
-    let imagemProdutoAtual = "";
-    let logoAtual = "";
-    let bannerAtual = "";
-    let ultimoMaiorPedidoId = 0;
-    let filtroPedidoAtual = "todos";
+    function formatarMoeda(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
 
-    function logout() {
+    function sair() {
       localStorage.removeItem("usuario");
       window.location.href = "/login.html";
     }
 
-    function formatarPreco(valor) {
-      return Number(valor || 0).toFixed(2).replace(".", ",");
-    }
+    function renderLoja() {
+      document.getElementById("sidebar-nome").textContent =
+        usuario.empresa_nome || "Sem nome";
 
-    function trocarTab(tab, botao) {
-      document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
-      document.querySelectorAll(".menu button").forEach(el => el.classList.remove("active"));
-      document.getElementById(`tab-${tab}`).classList.add("active");
-      botao.classList.add("active");
-    }
+      document.getElementById("sidebar-categoria").textContent =
+        usuario.categoria || "Sem categoria";
 
-    function copiarTexto(texto) {
-      navigator.clipboard.writeText(texto);
-      alert("Copiado com sucesso");
-    }
+      document.getElementById("sidebar-telefone").textContent =
+        usuario.telefone || "";
 
-    function gerarLinkWhatsapp(numero, mensagem) {
-      const numeroLimpo = String(numero || "").replace(/\D/g, "");
-      return `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
-    }
+      document.getElementById("sidebar-horario").textContent =
+        usuario.horario || "";
 
-    function tagStatus(status) {
-      const s = String(status || "").toLowerCase();
-      if (s.includes("novo")) return `<span class="tag orange">${status}</span>`;
-      if (s.includes("aceito")) return `<span class="tag blue">${status}</span>`;
-      if (s.includes("preparando")) return `<span class="tag orange">${status}</span>`;
-      if (s.includes("saiu")) return `<span class="tag blue">${status}</span>`;
-      if (s.includes("entregue")) return `<span class="tag green">${status}</span>`;
-      return `<span class="tag">${status}</span>`;
-    }
+      document.getElementById("hero-loja").textContent =
+        `Loja logada: ${usuario.empresa_nome || "Sem nome"}`;
 
-    function tocarSomNovoPedido() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        gain.gain.setValueAtTime(0.001, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.5);
-      } catch (e) {
-        console.log("Som não pôde ser reproduzido");
-      }
-    }
-
-    function mostrarAlertaNovoPedido() {
-      const alerta = document.getElementById("alertaNovoPedido");
-      alerta.style.display = "block";
-      tocarSomNovoPedido();
-      setTimeout(() => {
-        alerta.style.display = "none";
-      }, 5000);
-    }
-
-    function lerArquivo(file, callback) {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        callback(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function lerArquivoProduto(event) {
-      const file = event.target.files[0];
-      lerArquivo(file, (base64) => {
-        imagemProdutoAtual = base64;
-        document.getElementById("produtoImagem").value = "";
-        document.getElementById("previewProduto").src = base64;
-      });
-    }
-
-    function lerArquivoLogo(event) {
-      const file = event.target.files[0];
-      lerArquivo(file, (base64) => {
-        logoAtual = base64;
-        document.getElementById("lojaLogoUrl").value = "";
-        document.getElementById("previewLogo").src = base64;
-      });
-    }
-
-    function lerArquivoBanner(event) {
-      const file = event.target.files[0];
-      lerArquivo(file, (base64) => {
-        bannerAtual = base64;
-        document.getElementById("lojaBannerUrl").value = "";
-        document.getElementById("previewBanner").src = base64;
-      });
-    }
-
-    function toggleEditarLoja() {
-      const box = document.getElementById("boxEditarLoja");
-      const btn = document.getElementById("btnToggleEditarLoja");
-
-      if (box.style.display === "none" || box.style.display === "") {
-        box.style.display = "block";
-        btn.textContent = "Fechar edição";
-      } else {
-        box.style.display = "none";
-        btn.textContent = "Editar loja";
-      }
-    }
-
-    function cancelarEdicaoLoja() {
-      document.getElementById("boxEditarLoja").style.display = "none";
-      document.getElementById("btnToggleEditarLoja").textContent = "Editar loja";
-
-      if (empresa) {
-        document.getElementById("lojaNome").value = empresa.nome || "";
-        document.getElementById("lojaEmail").value = empresa.email || "";
-        document.getElementById("lojaTelefone").value = empresa.telefone || "";
-        document.getElementById("lojaCategoria").value = empresa.categoria || "";
-        document.getElementById("lojaHorario").value = empresa.horario || "";
-        document.getElementById("lojaAberta").value = String(empresa.aberta);
-        document.getElementById("lojaLogoUrl").value = empresa.logo_url || "";
-        document.getElementById("lojaBannerUrl").value = empresa.banner_url || "";
-
-        logoAtual = empresa.logo_url || "";
-        bannerAtual = empresa.banner_url || "";
-
-        document.getElementById("previewLogo").src = empresa.logo_url || "https://placehold.co/110x110?text=Logo";
-        document.getElementById("previewBanner").src = empresa.banner_url || "https://placehold.co/110x110?text=Banner";
-      }
-    }
-
-    async function carregarEmpresa() {
-      const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`);
-      const data = await res.json();
-      empresa = data.empresa;
-      SLUG = empresa.slug;
-
-      document.getElementById("pillLoja").textContent = `Loja logada: ${empresa.nome}`;
-      document.getElementById("sidebarLoja").innerHTML = `
-        <h3>${empresa.nome}</h3>
-        <p>${empresa.categoria || "Loja"}</p>
-        <p>${empresa.telefone || ""}</p>
-        <p>${empresa.horario || ""}</p>
+      document.getElementById("resumo-loja").innerHTML = `
+        <div class="resumo-linha"><strong>Nome:</strong> ${usuario.empresa_nome || "-"}</div>
+        <div class="resumo-linha"><strong>Email:</strong> ${usuario.email || "-"}</div>
+        <div class="resumo-linha"><strong>Telefone:</strong> ${usuario.telefone || "-"}</div>
+        <div class="resumo-linha"><strong>Categoria:</strong> ${usuario.categoria || "-"}</div>
+        <div class="resumo-linha"><strong>Horário:</strong> ${usuario.horario || "-"}</div>
+        <div class="resumo-linha"><strong>Slug:</strong> ${usuario.slug || "-"}</div>
       `;
-
-      document.getElementById("dashboardResumo").innerHTML = `
-        <p><strong>Nome:</strong> ${empresa.nome}</p><br>
-        <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
-        <p><strong>Telefone:</strong> ${empresa.telefone || "-"}</p><br>
-        <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br>
-        <p><strong>Status:</strong> ${empresa.aberta ? "Aberto" : "Fechado"}</p>
-      `;
-
-      const linkCardapio = `${API_URL}/produtos/${SLUG}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(linkCardapio)}`;
-
-      document.getElementById("dadosLoja").innerHTML = `
-        <div class="loja-box">
-          <img
-            class="loja-logo"
-            src="${empresa.logo_url || "https://placehold.co/140x140?text=Logo"}"
-            onerror="this.src='https://placehold.co/140x140?text=Logo'"
-          >
-          <div>
-            <p><strong>Nome:</strong> ${empresa.nome}</p><br>
-            <p><strong>Slug:</strong> ${SLUG}</p><br>
-            <p><strong>Telefone:</strong> ${empresa.telefone || "-"}</p><br>
-            <p><strong>Email:</strong> ${empresa.email || "-"}</p><br>
-            <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
-            <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br><br>
-
-            <div class="link-box">${linkCardapio}</div>
-
-            <div class="btn-row">
-              <button class="btn btn-info" onclick="window.open('${linkCardapio}', '_blank')">Ver cardápio</button>
-              <button class="btn btn-warning" onclick="copiarTexto('${linkCardapio}')">Copiar link</button>
-            </div>
-
-            <div class="qr-box">
-              <img src="${qrCodeUrl}" alt="QR Code do cardápio">
-            </div>
-
-            <img
-              class="loja-banner"
-              src="${empresa.banner_url || "https://placehold.co/420x140?text=Banner"}"
-              onerror="this.src='https://placehold.co/420x140?text=Banner'"
-            >
-          </div>
-        </div>
-      `;
-
-      document.getElementById("lojaNome").value = empresa.nome || "";
-      document.getElementById("lojaEmail").value = empresa.email || "";
-      document.getElementById("lojaTelefone").value = empresa.telefone || "";
-      document.getElementById("lojaCategoria").value = empresa.categoria || "";
-      document.getElementById("lojaHorario").value = empresa.horario || "";
-      document.getElementById("lojaAberta").value = String(empresa.aberta);
-      document.getElementById("lojaLogoUrl").value = empresa.logo_url || "";
-      document.getElementById("lojaBannerUrl").value = empresa.banner_url || "";
-
-      logoAtual = empresa.logo_url || "";
-      bannerAtual = empresa.banner_url || "";
-
-      document.getElementById("previewLogo").src = empresa.logo_url || "https://placehold.co/110x110?text=Logo";
-      document.getElementById("previewBanner").src = empresa.banner_url || "https://placehold.co/110x110?text=Banner";
-    }
-
-    async function salvarLoja() {
-      const nome = document.getElementById("lojaNome").value.trim();
-      const email = document.getElementById("lojaEmail").value.trim();
-      const telefone = document.getElementById("lojaTelefone").value.trim();
-      const categoria = document.getElementById("lojaCategoria").value.trim();
-      const horario = document.getElementById("lojaHorario").value.trim();
-      const aberta = document.getElementById("lojaAberta").value;
-      const logoUrlTexto = document.getElementById("lojaLogoUrl").value.trim();
-      const bannerUrlTexto = document.getElementById("lojaBannerUrl").value.trim();
-
-      const payload = {
-        nome,
-        email,
-        telefone,
-        categoria,
-        horario,
-        aberta,
-        logo_url: logoUrlTexto || logoAtual || "",
-        banner_url: bannerUrlTexto || bannerAtual || ""
-      };
-
-      const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.erro || "Erro ao salvar loja");
-        return;
-      }
-
-      alert("Loja atualizada com sucesso");
-      document.getElementById("boxEditarLoja").style.display = "none";
-      document.getElementById("btnToggleEditarLoja").textContent = "Editar loja";
-      await carregarEmpresa();
-    }
-
-    async function carregarCategorias() {
-      const res = await fetch(`${API_URL}/admin/categorias/${EMPRESA_ID}`);
-      const data = await res.json();
-      categorias = data.categorias || [];
-
-      const select = document.getElementById("produtoCategoria");
-      select.innerHTML = `<option value="">Selecione a categoria</option>` +
-        categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
-
-      const lista = document.getElementById("listaCategorias");
-      if (!categorias.length) {
-        lista.innerHTML = `<div class="empty">Nenhuma categoria cadastrada.</div>`;
-        return;
-      }
-
-      lista.innerHTML = categorias.map(c => `
-        <div class="categoria-card">
-          <strong>${c.nome}</strong>
-        </div>
-      `).join("");
-    }
-
-    async function salvarCategoria() {
-      const nome = document.getElementById("categoriaNome").value.trim();
-      if (!nome) return alert("Digite o nome da categoria");
-
-      await fetch(`${API_URL}/admin/categorias`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ nome, empresa_id: EMPRESA_ID })
-      });
-
-      document.getElementById("categoriaNome").value = "";
-      await carregarCategorias();
     }
 
     async function carregarProdutos() {
       const res = await fetch(`${API_URL}/admin/produtos/${EMPRESA_ID}`);
       const data = await res.json();
-      produtos = data.produtos || [];
-
-      document.getElementById("statProdutos").textContent = produtos.length;
-
-      const lista = document.getElementById("listaProdutos");
-      if (!produtos.length) {
-        lista.innerHTML = `<div class="empty">Nenhum produto cadastrado.</div>`;
-        return;
-      }
-
-      lista.innerHTML = produtos.map(p => `
-        <div class="produto-card">
-          <div class="produto-left">
-            <img class="produto-img" src="${p.imagem_url || "https://placehold.co/72x72?text=Produto"}" onerror="this.src='https://placehold.co/72x72?text=Produto'">
-            <div class="produto-info">
-              <h4>${p.nome}</h4>
-              <p>${p.descricao || "Sem descrição"}</p>
-              <p>
-                <span class="tag green">${p.ativo ? "Ativo" : "Inativo"}</span>
-                <span class="tag orange">${p.categoria_nome || "Sem categoria"}</span>
-              </p>
-              <div class="preco">R$ ${formatarPreco(p.preco)}</div>
-            </div>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-info" onclick="editarProduto(${p.id})">Editar</button>
-            <button class="btn btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function editarProduto(id) {
-      const p = produtos.find(x => x.id === id);
-      if (!p) return;
-
-      editandoProdutoId = p.id;
-      imagemProdutoAtual = p.imagem_url || "";
-      document.getElementById("produtoNome").value = p.nome || "";
-      document.getElementById("produtoDescricao").value = p.descricao || "";
-      document.getElementById("produtoPreco").value = p.preco || "";
-      document.getElementById("produtoImagem").value = p.imagem_url || "";
-      document.getElementById("produtoCategoria").value = p.categoria_id || "";
-      document.getElementById("previewProduto").src = p.imagem_url || "https://placehold.co/110x110?text=Produto";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      alert("Produto carregado para edição");
-    }
-
-    function limparFormularioProduto() {
-      editandoProdutoId = null;
-      imagemProdutoAtual = "";
-      document.getElementById("produtoNome").value = "";
-      document.getElementById("produtoDescricao").value = "";
-      document.getElementById("produtoPreco").value = "";
-      document.getElementById("produtoImagem").value = "";
-      document.getElementById("produtoImagemArquivo").value = "";
-      document.getElementById("produtoCategoria").value = "";
-      document.getElementById("previewProduto").src = "https://placehold.co/110x110?text=Produto";
-    }
-
-    async function salvarProduto() {
-      const nome = document.getElementById("produtoNome").value.trim();
-      const descricao = document.getElementById("produtoDescricao").value.trim();
-      const preco = document.getElementById("produtoPreco").value.trim();
-      const imagemUrlTexto = document.getElementById("produtoImagem").value.trim();
-      const categoria_id = document.getElementById("produtoCategoria").value;
-
-      if (!nome || !preco) return alert("Preencha nome e preço");
-
-      const payload = {
-        nome,
-        descricao,
-        preco,
-        imagem_url: imagemUrlTexto || imagemProdutoAtual || "",
-        categoria_id: categoria_id || null,
-        ativo: true,
-        empresa_id: EMPRESA_ID
-      };
-
-      if (editandoProdutoId) {
-        await fetch(`${API_URL}/admin/produtos/${editandoProdutoId}`, {
-          method: "PUT",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-      } else {
-        await fetch(`${API_URL}/admin/produtos`, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload)
-        });
-      }
-
-      limparFormularioProduto();
-      await carregarProdutos();
-    }
-
-    async function excluirProduto(id) {
-      if (!confirm("Deseja excluir este produto?")) return;
-
-      await fetch(`${API_URL}/admin/produtos/${id}`, {
-        method: "DELETE"
-      });
-
-      await carregarProdutos();
-    }
-
-    function aplicarFiltroPedidos(status) {
-      filtroPedidoAtual = status;
-      renderPedidos();
-    }
-
-    function obterPedidosFiltrados() {
-      if (filtroPedidoAtual === "todos") return pedidos;
-      return pedidos.filter(p => String(p.status).toLowerCase() === filtroPedidoAtual.toLowerCase());
-    }
-
-    function renderPedidos() {
-      const dash = document.getElementById("dashboardPedidos");
-      const lista = document.getElementById("listaPedidos");
-
-      if (!pedidos.length) {
-        dash.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
-        lista.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
-        return;
-      }
-
-      dash.innerHTML = pedidos.slice(0, 5).map(p => `
-        <div class="pedido-resumo">
-          <h4>Pedido #${p.id}</h4>
-          <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
-          <div class="pedido-meta"><strong>Status:</strong> ${tagStatus(p.status)}</div>
-          <div class="pedido-meta"><strong>Total:</strong> R$ ${formatarPreco(p.total)}</div>
-        </div>
-      `).join("");
-
-      const pedidosFiltrados = obterPedidosFiltrados();
-
-      if (!pedidosFiltrados.length) {
-        lista.innerHTML = `<div class="empty">Nenhum pedido encontrado neste filtro.</div>`;
-        return;
-      }
-
-      lista.innerHTML = pedidosFiltrados.map(p => `
-        <div class="pedido-card" id="pedido-${p.id}">
-          <h4>Pedido #${p.id}</h4>
-          <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
-          <div class="pedido-meta"><strong>WhatsApp:</strong> ${p.cliente_whatsapp}</div>
-          <div class="pedido-meta"><strong>Endereço:</strong> ${p.endereco}</div>
-          <div class="pedido-meta"><strong>Status:</strong> ${tagStatus(p.status)}</div>
-          <div class="pedido-meta"><strong>Total:</strong> R$ ${formatarPreco(p.total)}</div>
-
-          <div class="pedido-itens">
-            ${(p.itens || []).map(item => `
-              <div class="pedido-item">
-                <span>${item.quantidade}x ${item.produto_nome}</span>
-                <span>R$ ${formatarPreco(item.preco)}</span>
-              </div>
-            `).join("")}
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito')">Aceitar</button>
-            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando')">Preparando</button>
-            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu para entrega')">Saiu para entrega</button>
-            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue')">Entregue</button>
-            <button class="btn btn-whats" onclick="abrirWhatsappCliente(${p.id}, '${p.cliente_whatsapp}', '${p.cliente_nome}', '${p.status}')">WhatsApp cliente</button>
-            <button class="btn btn-muted" onclick="imprimirPedido(${p.id})">Imprimir</button>
-          </div>
-        </div>
-      `).join("");
+      return data.produtos || [];
     }
 
     async function carregarPedidos() {
       const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
       const data = await res.json();
-      const novosPedidos = data.pedidos || [];
-
-      const maiorIdAtual = novosPedidos.length ? Math.max(...novosPedidos.map(p => Number(p.id))) : 0;
-
-      if (ultimoMaiorPedidoId && maiorIdAtual > ultimoMaiorPedidoId) {
-        mostrarAlertaNovoPedido();
-      }
-
-      ultimoMaiorPedidoId = maiorIdAtual;
-      pedidos = novosPedidos;
-
-      document.getElementById("statPedidos").textContent = pedidos.length;
-      document.getElementById("statPendentes").textContent =
-        pedidos.filter(p => String(p.status).toLowerCase() === "novo").length;
-
-      const faturamento = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
-      document.getElementById("statFaturamento").textContent = `R$ ${formatarPreco(faturamento)}`;
-
-      renderPedidos();
-    }
-
-    function abrirWhatsappCliente(id, whatsapp, clienteNome, status) {
-      const mensagem = `Olá, ${clienteNome}! Aqui é da loja ${empresa.nome}. O status do seu pedido #${id} é: ${status}.`;
-      const link = gerarLinkWhatsapp(whatsapp, mensagem);
-      window.open(link, "_blank");
-    }
-
-    async function mudarStatus(id, status) {
-      await fetch(`${API_URL}/admin/pedidos/${id}/status`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ status })
-      });
-
-      await carregarPedidos();
-    }
-
-    function imprimirPedido(id) {
-      const pedido = pedidos.find(p => Number(p.id) === Number(id));
-      if (!pedido) return;
-
-      const janela = window.open("", "_blank");
-      janela.document.write(`
-        <html>
-        <head>
-          <title>Pedido #${pedido.id}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
-            h1 { margin-bottom: 10px; }
-            p { margin: 6px 0; }
-            hr { margin: 16px 0; }
-            .item { display: flex; justify-content: space-between; margin: 6px 0; }
-          </style>
-        </head>
-        <body>
-          <h1>Pedido #${pedido.id}</h1>
-          <p><strong>Loja:</strong> ${empresa.nome}</p>
-          <p><strong>Cliente:</strong> ${pedido.cliente_nome}</p>
-          <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp}</p>
-          <p><strong>Endereço:</strong> ${pedido.endereco}</p>
-          <p><strong>Status:</strong> ${pedido.status}</p>
-          <hr>
-          <h3>Itens</h3>
-          ${(pedido.itens || []).map(item => `
-            <div class="item">
-              <span>${item.quantidade}x ${item.produto_nome}</span>
-              <span>R$ ${formatarPreco(item.preco)}</span>
-            </div>
-          `).join("")}
-          <hr>
-          <p><strong>Total:</strong> R$ ${formatarPreco(pedido.total)}</p>
-          <script>
-            window.onload = function() {
-              window.print();
-            }
-          <\/script>
-        </body>
-        </html>
-      `);
-      janela.document.close();
+      return data.pedidos || [];
     }
 
     async function iniciar() {
-      await carregarEmpresa();
-      await carregarCategorias();
-      await carregarProdutos();
-      await carregarPedidos();
+      try {
+        renderLoja();
+
+        const [produtos, pedidos] = await Promise.all([
+          carregarProdutos(),
+          carregarPedidos()
+        ]);
+
+        document.getElementById("stat-produtos").textContent = produtos.length;
+        document.getElementById("stat-pedidos").textContent = pedidos.length;
+
+        const pendentes = pedidos.filter(p => (p.status || "").toLowerCase() !== "entregue").length;
+        document.getElementById("stat-pendentes").textContent = pendentes;
+
+        const faturamento = pedidos.reduce((soma, p) => soma + Number(p.total || 0), 0);
+        document.getElementById("stat-faturamento").textContent = formatarMoeda(faturamento);
+
+        const lista = document.getElementById("lista-pedidos");
+
+        if (!pedidos.length) {
+          lista.innerHTML = `<div class="pedido-meta">Nenhum pedido recebido.</div>`;
+          return;
+        }
+
+        lista.innerHTML = pedidos.slice(0, 8).map(pedido => `
+          <div class="pedido-item">
+            <div class="pedido-top">
+              <div class="pedido-cliente">Pedido #${pedido.id} - ${pedido.cliente_nome || "Sem nome"}</div>
+              <div class="pedido-status">${pedido.status || "novo"}</div>
+            </div>
+            <div class="pedido-meta">
+              WhatsApp: ${pedido.cliente_whatsapp || "-"}<br>
+              Endereço: ${pedido.endereco || "-"}<br>
+              Total: ${formatarMoeda(pedido.total || 0)}
+            </div>
+          </div>
+        `).join("");
+      } catch (error) {
+        console.error(error);
+        document.getElementById("lista-pedidos").innerHTML =
+          `<div class="pedido-meta">Erro ao carregar pedidos.</div>`;
+        document.getElementById("resumo-loja").innerHTML =
+          `<div class="pedido-meta">Erro ao carregar loja.</div>`;
+      }
     }
 
-    setInterval(carregarPedidos, 5000);
     iniciar();
   </script>
 </body>

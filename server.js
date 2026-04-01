@@ -6,12 +6,11 @@ const { Pool } = require("pg");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ================= CONFIG =================
 app.use(cors());
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
+app.use(express.static(__dirname));
 
-// 🔥 CONEXÃO CORRETA (SEM SENHA NO CÓDIGO)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -26,7 +25,6 @@ async function query(sql, params = []) {
   }
 }
 
-// ================= HEALTH =================
 app.get("/health", async (req, res) => {
   try {
     await query("SELECT 1");
@@ -36,8 +34,11 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// ================= ARQUIVOS =================
 app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/index.html", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
@@ -45,25 +46,43 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
 
+app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
 });
 
-app.use(express.static(__dirname));
+app.get("/admin.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin.html"));
+});
 
-// ================= LOGIN =================
 app.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
 
     if (!email || !senha) {
-      return res.status(400).json({ erro: "Preencha email e senha" });
+      return res.status(400).json({ erro: "Email e senha são obrigatórios" });
     }
 
     const result = await query(
-      `SELECT u.*, e.nome as empresa_nome
+      `SELECT
+        u.id AS usuario_id,
+        u.nome AS usuario_nome,
+        u.email,
+        u.empresa_id,
+        e.id AS empresa_id_real,
+        e.nome AS empresa_nome,
+        e.slug,
+        e.telefone,
+        e.categoria,
+        e.horario,
+        e.aberta,
+        e.logo_url,
+        e.banner_url
        FROM usuarios u
-       JOIN empresas e ON e.id = u.empresa_id
+       LEFT JOIN empresas e ON e.id = u.empresa_id
        WHERE u.email = $1 AND u.senha = $2
        LIMIT 1`,
       [email, senha]
@@ -73,140 +92,503 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ erro: "Login inválido" });
     }
 
+    const row = result.rows[0];
+
     res.json({
       ok: true,
-      empresa: result.rows[0],
+      usuario: {
+        usuario_id: row.usuario_id,
+        usuario_nome: row.usuario_nome,
+        email: row.email,
+        empresa_id: row.empresa_id || row.empresa_id_real,
+        empresa_nome: row.empresa_nome || row.usuario_nome || "Sem nome",
+        slug: row.slug || "",
+        telefone: row.telefone || "",
+        categoria: row.categoria || "",
+        horario: row.horario || "",
+        aberta: row.aberta,
+        logo_url: row.logo_url || "",
+        banner_url: row.banner_url || "",
+      },
     });
-  } catch (err) {
-    res.status(500).json({ erro: err.message });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro no login",
+      detalhe: error.message,
+    });
   }
 });
 
-// ================= CARDÁPIO =================
+app.get("/admin/empresa/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await query(
+      `SELECT
+        id,
+        nome,
+        slug,
+        telefone,
+        email,
+        categoria,
+        horario,
+        aberta,
+        logo_url,
+        banner_url
+       FROM empresas
+       WHERE id = $1
+       LIMIT 1`,
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ erro: "Empresa não encontrada" });
+    }
+
+    res.json({ empresa: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao buscar empresa",
+      detalhe: error.message,
+    });
+  }
+});
+
+app.put("/admin/empresa/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      nome,
+      telefone,
+      categoria,
+      horario,
+      aberta,
+      logo_url,
+      banner_url,
+      email,
+    } = req.body;
+
+    const result = await query(
+      `UPDATE empresas
+       SET nome = $1,
+           telefone = $2,
+           categoria = $3,
+           horario = $4,
+           aberta = $5,
+           logo_url = $6,
+           banner_url = $7,
+           email = $8
+       WHERE id = $9
+       RETURNING *`,
+      [
+        nome || "",
+        telefone || "",
+        categoria || "",
+        horario || "",
+        aberta === true || aberta === "true",
+        logo_url || "",
+        banner_url || "",
+        email || "",
+        id,
+      ]
+    );
+
+    res.json({ ok: true, empresa: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao atualizar empresa",
+      detalhe: error.message,
+    });
+  }
+});
+
 app.get("/produtos/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const empresa = await query(
-      "SELECT * FROM empresas WHERE slug = $1",
+    const empresaResult = await query(
+      `SELECT
+        id,
+        nome,
+        slug,
+        telefone,
+        email,
+        categoria,
+        horario,
+        aberta,
+        logo_url,
+        banner_url
+       FROM empresas
+       WHERE slug = $1
+       LIMIT 1`,
       [slug]
     );
 
-    if (!empresa.rows.length) {
+    if (!empresaResult.rows.length) {
       return res.status(404).json({ erro: "Empresa não encontrada" });
     }
 
-    const produtos = await query(
-      "SELECT * FROM produtos WHERE empresa_id = $1 AND ativo = true",
-      [empresa.rows[0].id]
+    const empresa = empresaResult.rows[0];
+
+    const produtosResult = await query(
+      `SELECT
+        p.id,
+        p.nome,
+        COALESCE(p.descricao, '') AS descricao,
+        p.preco,
+        COALESCE(p.imagem_url, '') AS imagem_url,
+        p.ativo,
+        p.categoria_id,
+        COALESCE(c.nome, 'Sem categoria') AS categoria
+       FROM produtos p
+       LEFT JOIN categorias c ON c.id = p.categoria_id
+       WHERE p.empresa_id = $1
+         AND p.ativo = true
+       ORDER BY p.id ASC`,
+      [empresa.id]
     );
 
     res.json({
-      empresa: empresa.rows[0],
-      produtos: produtos.rows,
+      empresa,
+      produtos: produtosResult.rows,
     });
-  } catch (err) {
-    res.status(500).json({ erro: err.message });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro no servidor",
+      detalhe: error.message,
+    });
   }
 });
 
-// ================= PEDIDOS =================
 app.post("/pedido/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
     const { nome, whatsapp, endereco, itens, total } = req.body;
 
-    const empresa = await query(
-      "SELECT * FROM empresas WHERE slug = $1",
+    if (!nome || !whatsapp || !endereco || !Array.isArray(itens) || !itens.length) {
+      return res.status(400).json({ erro: "Dados do pedido incompletos" });
+    }
+
+    const empresaResult = await query(
+      `SELECT id, nome, slug, telefone
+       FROM empresas
+       WHERE slug = $1
+       LIMIT 1`,
       [slug]
     );
 
-    if (!empresa.rows.length) {
+    if (!empresaResult.rows.length) {
       return res.status(404).json({ erro: "Empresa não encontrada" });
     }
 
-    const pedido = await query(
-      `INSERT INTO pedidos 
-      (cliente_nome, cliente_whatsapp, endereco, total, status, empresa_id)
-      VALUES ($1,$2,$3,$4,'novo',$5)
+    const empresa = empresaResult.rows[0];
+
+    const pedidoResult = await query(
+      `INSERT INTO pedidos (
+        cliente_nome,
+        cliente_whatsapp,
+        endereco,
+        total,
+        status,
+        empresa_id
+      )
+      VALUES ($1, $2, $3, $4, 'novo', $5)
       RETURNING *`,
-      [nome, whatsapp, endereco, total, empresa.rows[0].id]
+      [nome, whatsapp, endereco, total || 0, empresa.id]
     );
 
-    for (let item of itens) {
+    const pedido = pedidoResult.rows[0];
+
+    for (const item of itens) {
       await query(
-        `INSERT INTO pedido_itens 
-        (pedido_id, produto_nome, quantidade, preco)
-        VALUES ($1,$2,$3,$4)`,
-        [pedido.rows[0].id, item.nome, item.qtd, item.preco]
+        `INSERT INTO pedido_itens (
+          pedido_id,
+          produto_nome,
+          quantidade,
+          preco
+        )
+        VALUES ($1, $2, $3, $4)`,
+        [
+          pedido.id,
+          item.nome || "",
+          Number(item.qtd || item.quantidade || 1),
+          Number(item.preco || 0),
+        ]
       );
     }
 
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ erro: err.message });
+    res.json({
+      ok: true,
+      pedido,
+      mensagem: "Pedido criado com sucesso",
+    });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao criar pedido",
+      detalhe: error.message,
+    });
   }
 });
 
-// ================= PRODUTOS ADMIN =================
+app.get("/admin/categorias/:empresaId", async (req, res) => {
+  try {
+    const { empresaId } = req.params;
+
+    const result = await query(
+      `SELECT id, nome, empresa_id
+       FROM categorias
+       WHERE empresa_id = $1
+       ORDER BY nome ASC`,
+      [empresaId]
+    );
+
+    res.json({ categorias: result.rows });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao buscar categorias",
+      detalhe: error.message,
+    });
+  }
+});
+
+app.post("/admin/categorias", async (req, res) => {
+  try {
+    const { nome, empresa_id } = req.body;
+
+    if (!nome || !empresa_id) {
+      return res.status(400).json({ erro: "Nome e empresa_id são obrigatórios" });
+    }
+
+    const result = await query(
+      `INSERT INTO categorias (nome, empresa_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [nome, empresa_id]
+    );
+
+    res.json({ ok: true, categoria: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao criar categoria",
+      detalhe: error.message,
+    });
+  }
+});
+
 app.get("/admin/produtos/:empresaId", async (req, res) => {
-  const result = await query(
-    "SELECT * FROM produtos WHERE empresa_id = $1",
-    [req.params.empresaId]
-  );
-  res.json(result.rows);
+  try {
+    const { empresaId } = req.params;
+
+    const result = await query(
+      `SELECT
+        p.id,
+        p.nome,
+        COALESCE(p.descricao, '') AS descricao,
+        p.preco,
+        COALESCE(p.imagem_url, '') AS imagem_url,
+        p.ativo,
+        p.empresa_id,
+        p.categoria_id,
+        COALESCE(c.nome, 'Sem categoria') AS categoria_nome
+       FROM produtos p
+       LEFT JOIN categorias c ON c.id = p.categoria_id
+       WHERE p.empresa_id = $1
+       ORDER BY p.id DESC`,
+      [empresaId]
+    );
+
+    res.json({ produtos: result.rows });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao buscar produtos",
+      detalhe: error.message,
+    });
+  }
 });
 
 app.post("/admin/produtos", async (req, res) => {
-  const { nome, preco, empresa_id } = req.body;
+  try {
+    const {
+      nome,
+      descricao,
+      preco,
+      imagem_url,
+      ativo,
+      empresa_id,
+      categoria_id,
+    } = req.body;
 
-  const result = await query(
-    `INSERT INTO produtos (nome, preco, empresa_id, ativo)
-     VALUES ($1,$2,$3,true) RETURNING *`,
-    [nome, preco, empresa_id]
-  );
+    if (!nome || !preco || !empresa_id) {
+      return res.status(400).json({ erro: "Nome, preço e empresa_id são obrigatórios" });
+    }
 
-  res.json(result.rows[0]);
+    const result = await query(
+      `INSERT INTO produtos (
+        nome,
+        descricao,
+        preco,
+        imagem_url,
+        ativo,
+        empresa_id,
+        categoria_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *`,
+      [
+        nome,
+        descricao || "",
+        preco,
+        imagem_url || "",
+        ativo === false ? false : true,
+        empresa_id,
+        categoria_id || null,
+      ]
+    );
+
+    res.json({ ok: true, produto: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao criar produto",
+      detalhe: error.message,
+    });
+  }
 });
 
 app.put("/admin/produtos/:id", async (req, res) => {
-  const { nome, preco } = req.body;
+  try {
+    const { id } = req.params;
+    const {
+      nome,
+      descricao,
+      preco,
+      imagem_url,
+      ativo,
+      empresa_id,
+      categoria_id,
+    } = req.body;
 
-  const result = await query(
-    `UPDATE produtos SET nome=$1, preco=$2 WHERE id=$3 RETURNING *`,
-    [nome, preco, req.params.id]
-  );
+    const result = await query(
+      `UPDATE produtos
+       SET nome = $1,
+           descricao = $2,
+           preco = $3,
+           imagem_url = $4,
+           ativo = $5,
+           empresa_id = $6,
+           categoria_id = $7
+       WHERE id = $8
+       RETURNING *`,
+      [
+        nome || "",
+        descricao || "",
+        preco || 0,
+        imagem_url || "",
+        ativo === false ? false : true,
+        empresa_id || null,
+        categoria_id || null,
+        id,
+      ]
+    );
 
-  res.json(result.rows[0]);
+    res.json({ ok: true, produto: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao atualizar produto",
+      detalhe: error.message,
+    });
+  }
 });
 
 app.delete("/admin/produtos/:id", async (req, res) => {
-  await query("DELETE FROM produtos WHERE id=$1", [req.params.id]);
-  res.json({ ok: true });
+  try {
+    const { id } = req.params;
+    await query(`DELETE FROM produtos WHERE id = $1`, [id]);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao excluir produto",
+      detalhe: error.message,
+    });
+  }
 });
 
-// ================= PEDIDOS ADMIN =================
 app.get("/admin/pedidos/:empresaId", async (req, res) => {
-  const pedidos = await query(
-    "SELECT * FROM pedidos WHERE empresa_id = $1 ORDER BY id DESC",
-    [req.params.empresaId]
-  );
+  try {
+    const { empresaId } = req.params;
 
-  res.json(pedidos.rows);
+    const pedidosResult = await query(
+      `SELECT
+        id,
+        cliente_nome,
+        cliente_whatsapp,
+        endereco,
+        total,
+        status,
+        empresa_id,
+        criado_em
+       FROM pedidos
+       WHERE empresa_id = $1
+       ORDER BY id DESC`,
+      [empresaId]
+    );
+
+    const pedidos = [];
+
+    for (const pedido of pedidosResult.rows) {
+      const itensResult = await query(
+        `SELECT
+          id,
+          pedido_id,
+          produto_nome,
+          quantidade,
+          preco
+         FROM pedido_itens
+         WHERE pedido_id = $1
+         ORDER BY id ASC`,
+        [pedido.id]
+      );
+
+      pedidos.push({
+        ...pedido,
+        itens: itensResult.rows,
+      });
+    }
+
+    res.json({ pedidos });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao buscar pedidos",
+      detalhe: error.message,
+    });
+  }
 });
 
 app.put("/admin/pedidos/:id/status", async (req, res) => {
-  const { status } = req.body;
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  await query(
-    "UPDATE pedidos SET status=$1 WHERE id=$2",
-    [status, req.params.id]
-  );
+    if (!status) {
+      return res.status(400).json({ erro: "Status é obrigatório" });
+    }
 
-  res.json({ ok: true });
+    const result = await query(
+      `UPDATE pedidos
+       SET status = $1
+       WHERE id = $2
+       RETURNING *`,
+      [status, id]
+    );
+
+    res.json({ ok: true, pedido: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({
+      erro: "Erro ao atualizar status do pedido",
+      detalhe: error.message,
+    });
+  }
 });
 
-// ================= START =================
 app.listen(PORT, () => {
-  console.log("Servidor rodando 🚀");
-});		
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
