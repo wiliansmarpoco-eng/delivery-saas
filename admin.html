@@ -279,6 +279,24 @@
       margin-bottom: 8px;
     }
 
+    .filtro-linha {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .alerta-novo-pedido {
+      display: none;
+      margin-bottom: 18px;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: bold;
+    }
+
     @media (max-width: 1100px) {
       .cards { grid-template-columns: repeat(2, 1fr); }
       .grid-2, .grid-2-equal { grid-template-columns: 1fr; }
@@ -328,6 +346,10 @@
         <p>Gerencie produtos, pedidos e sua loja em um só lugar.</p>
         <span class="pill" id="pillLoja">Loja logada: carregando...</span>
       </section>
+
+      <div class="alerta-novo-pedido" id="alertaNovoPedido">
+        Novo pedido recebido!
+      </div>
 
       <section class="cards">
         <div class="stat">
@@ -407,6 +429,16 @@
       <section id="tab-pedidos" class="tab">
         <div class="panel">
           <h3>Pedidos recebidos</h3>
+
+          <div class="filtro-linha">
+            <button class="btn btn-muted" onclick="aplicarFiltroPedidos('todos')">Todos</button>
+            <button class="btn btn-warning" onclick="aplicarFiltroPedidos('novo')">Novo</button>
+            <button class="btn btn-info" onclick="aplicarFiltroPedidos('aceito')">Aceito</button>
+            <button class="btn btn-warning" onclick="aplicarFiltroPedidos('preparando')">Preparando</button>
+            <button class="btn btn-info" onclick="aplicarFiltroPedidos('saiu para entrega')">Saiu</button>
+            <button class="btn btn-success" onclick="aplicarFiltroPedidos('entregue')">Entregue</button>
+          </div>
+
           <div id="listaPedidos" class="empty">Carregando...</div>
         </div>
       </section>
@@ -419,33 +451,67 @@
           </div>
 
           <div class="panel">
-            <h3>Editar loja</h3>
-            <input id="lojaNome" class="input" placeholder="Nome da loja" />
-            <input id="lojaEmail" class="input" placeholder="Email da loja" />
-            <input id="lojaTelefone" class="input" placeholder="Telefone" />
-            <input id="lojaCategoria" class="input" placeholder="Categoria" />
-            <input id="lojaHorario" class="input" placeholder="Horário" />
-
-            <select id="lojaAberta" class="select">
-              <option value="true">Loja aberta</option>
-              <option value="false">Loja fechada</option>
-            </select>
-
-            <input id="lojaLogoUrl" class="input" placeholder="URL da logo" />
-            <div class="subtitulo">Ou escolha a logo do computador</div>
-            <input id="lojaLogoArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoLogo(event)" />
-
-            <input id="lojaBannerUrl" class="input" placeholder="URL do banner" />
-            <div class="subtitulo">Ou escolha o banner do computador</div>
-            <input id="lojaBannerArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoBanner(event)" />
-
-            <div class="preview-box">
-              <img id="previewLogo" src="https://placehold.co/110x110?text=Logo" alt="Preview logo">
-              <img id="previewBanner" src="https://placehold.co/110x110?text=Banner" alt="Preview banner">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3>Editar loja</h3>
+              <button class="btn btn-primary" onclick="toggleEditarLoja()" id="btnToggleEditarLoja">
+                Editar loja
+              </button>
             </div>
 
-            <div class="btn-row">
-              <button class="btn btn-primary" onclick="salvarLoja()">Salvar alterações da loja</button>
+            <div id="boxEditarLoja" style="display:none;">
+              <input id="lojaNome" class="input" placeholder="Nome da loja" />
+              <input id="lojaEmail" class="input" placeholder="Email da loja" />
+              <input id="lojaTelefone" class="input" placeholder="Telefone" />
+              <input id="lojaCategoria" class="input" placeholder="Categoria" />
+              <input id="lojaHorario" class="input" placeholder="Horário" />
+
+              <select id="lojaAberta" class="select">
+                <option value="true">Loja aberta</option>
+                <option value="false">Loja fechada</option>
+              </select>
+
+              <input id="lojaLogoUrl" class="input" placeholder="URL da logo (opcional)" />
+              <input id="lojaBannerUrl" class="input" placeholder="URL do banner (opcional)" />
+
+              <div class="subtitulo">Clique na imagem para escolher do computador</div>
+
+              <div class="preview-box">
+                <img
+                  id="previewLogo"
+                  src="https://placehold.co/110x110?text=Logo"
+                  alt="Preview logo"
+                  style="cursor:pointer"
+                  onclick="document.getElementById('lojaLogoArquivo').click()"
+                />
+                <img
+                  id="previewBanner"
+                  src="https://placehold.co/110x110?text=Banner"
+                  alt="Preview banner"
+                  style="cursor:pointer"
+                  onclick="document.getElementById('lojaBannerArquivo').click()"
+                />
+              </div>
+
+              <input
+                id="lojaLogoArquivo"
+                type="file"
+                accept="image/*"
+                style="display:none"
+                onchange="lerArquivoLogo(event)"
+              />
+
+              <input
+                id="lojaBannerArquivo"
+                type="file"
+                accept="image/*"
+                style="display:none"
+                onchange="lerArquivoBanner(event)"
+              />
+
+              <div class="btn-row">
+                <button class="btn btn-success" onclick="salvarLoja()">Salvar alterações</button>
+                <button class="btn btn-muted" onclick="cancelarEdicaoLoja()">Cancelar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -466,6 +532,8 @@
     let imagemProdutoAtual = "";
     let logoAtual = "";
     let bannerAtual = "";
+    let ultimoMaiorPedidoId = 0;
+    let filtroPedidoAtual = "todos";
 
     function formatarPreco(valor) {
       return Number(valor || 0).toFixed(2).replace(".", ",");
@@ -496,6 +564,36 @@
       if (s.includes("saiu")) return `<span class="tag blue">${status}</span>`;
       if (s.includes("entregue")) return `<span class="tag green">${status}</span>`;
       return `<span class="tag">${status}</span>`;
+    }
+
+    function tocarSomNovoPedido() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } catch (e) {
+        console.log("Som não pôde ser reproduzido");
+      }
+    }
+
+    function mostrarAlertaNovoPedido() {
+      const alerta = document.getElementById("alertaNovoPedido");
+      alerta.style.display = "block";
+      tocarSomNovoPedido();
+      setTimeout(() => {
+        alerta.style.display = "none";
+      }, 5000);
     }
 
     function lerArquivo(file, callback) {
@@ -534,6 +632,41 @@
       });
     }
 
+    function toggleEditarLoja() {
+      const box = document.getElementById("boxEditarLoja");
+      const btn = document.getElementById("btnToggleEditarLoja");
+
+      if (box.style.display === "none" || box.style.display === "") {
+        box.style.display = "block";
+        btn.textContent = "Fechar edição";
+      } else {
+        box.style.display = "none";
+        btn.textContent = "Editar loja";
+      }
+    }
+
+    function cancelarEdicaoLoja() {
+      document.getElementById("boxEditarLoja").style.display = "none";
+      document.getElementById("btnToggleEditarLoja").textContent = "Editar loja";
+
+      if (empresa) {
+        document.getElementById("lojaNome").value = empresa.nome || "";
+        document.getElementById("lojaEmail").value = empresa.email || "";
+        document.getElementById("lojaTelefone").value = empresa.telefone || "";
+        document.getElementById("lojaCategoria").value = empresa.categoria || "";
+        document.getElementById("lojaHorario").value = empresa.horario || "";
+        document.getElementById("lojaAberta").value = String(empresa.aberta);
+        document.getElementById("lojaLogoUrl").value = empresa.logo_url || "";
+        document.getElementById("lojaBannerUrl").value = empresa.banner_url || "";
+
+        logoAtual = empresa.logo_url || "";
+        bannerAtual = empresa.banner_url || "";
+
+        document.getElementById("previewLogo").src = empresa.logo_url || "https://placehold.co/110x110?text=Logo";
+        document.getElementById("previewBanner").src = empresa.banner_url || "https://placehold.co/110x110?text=Banner";
+      }
+    }
+
     async function carregarEmpresa() {
       const res = await fetch(`${API_URL}/produtos/${SLUG}`);
       const data = await res.json();
@@ -560,7 +693,11 @@
 
       document.getElementById("dadosLoja").innerHTML = `
         <div class="loja-box">
-          <img class="loja-logo" src="${empresa.logo_url || "https://placehold.co/140x140?text=Logo"}" onerror="this.src='https://placehold.co/140x140?text=Logo'">
+          <img
+            class="loja-logo"
+            src="${empresa.logo_url || "https://placehold.co/140x140?text=Logo"}"
+            onerror="this.src='https://placehold.co/140x140?text=Logo'"
+          >
           <div>
             <p><strong>Nome:</strong> ${empresa.nome}</p><br>
             <p><strong>Slug:</strong> ${SLUG}</p><br>
@@ -570,6 +707,7 @@
             <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br><br>
 
             <div class="link-box">${linkCardapio}</div>
+
             <div class="btn-row">
               <button class="btn btn-info" onclick="window.open('${linkCardapio}', '_blank')">Ver cardápio</button>
               <button class="btn btn-warning" onclick="copiarTexto('${linkCardapio}')">Copiar link</button>
@@ -579,7 +717,11 @@
               <img src="${qrCodeUrl}" alt="QR Code do cardápio">
             </div>
 
-            <img class="loja-banner" src="${empresa.banner_url || "https://placehold.co/420x140?text=Banner"}" onerror="this.src='https://placehold.co/420x140?text=Banner'">
+            <img
+              class="loja-banner"
+              src="${empresa.banner_url || "https://placehold.co/420x140?text=Banner"}"
+              onerror="this.src='https://placehold.co/420x140?text=Banner'"
+            >
           </div>
         </div>
       `;
@@ -628,12 +770,15 @@
       });
 
       const data = await res.json();
+
       if (!res.ok) {
         alert(data.erro || "Erro ao salvar loja");
         return;
       }
 
       alert("Loja atualizada com sucesso");
+      document.getElementById("boxEditarLoja").style.display = "none";
+      document.getElementById("btnToggleEditarLoja").textContent = "Editar loja";
       await carregarEmpresa();
     }
 
@@ -783,18 +928,17 @@
       await carregarProdutos();
     }
 
-    async function carregarPedidos() {
-      const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
-      const data = await res.json();
-      pedidos = data.pedidos || [];
+    function aplicarFiltroPedidos(status) {
+      filtroPedidoAtual = status;
+      renderPedidos();
+    }
 
-      document.getElementById("statPedidos").textContent = pedidos.length;
-      document.getElementById("statPendentes").textContent =
-        pedidos.filter(p => String(p.status).toLowerCase() === "novo").length;
+    function obterPedidosFiltrados() {
+      if (filtroPedidoAtual === "todos") return pedidos;
+      return pedidos.filter(p => String(p.status).toLowerCase() === filtroPedidoAtual.toLowerCase());
+    }
 
-      const faturamento = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
-      document.getElementById("statFaturamento").textContent = `R$ ${formatarPreco(faturamento)}`;
-
+    function renderPedidos() {
       const dash = document.getElementById("dashboardPedidos");
       const lista = document.getElementById("listaPedidos");
 
@@ -813,8 +957,15 @@
         </div>
       `).join("");
 
-      lista.innerHTML = pedidos.map(p => `
-        <div class="pedido-card">
+      const pedidosFiltrados = obterPedidosFiltrados();
+
+      if (!pedidosFiltrados.length) {
+        lista.innerHTML = `<div class="empty">Nenhum pedido encontrado neste filtro.</div>`;
+        return;
+      }
+
+      lista.innerHTML = pedidosFiltrados.map(p => `
+        <div class="pedido-card" id="pedido-${p.id}">
           <h4>Pedido #${p.id}</h4>
           <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
           <div class="pedido-meta"><strong>WhatsApp:</strong> ${p.cliente_whatsapp}</div>
@@ -837,9 +988,34 @@
             <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu para entrega')">Saiu para entrega</button>
             <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue')">Entregue</button>
             <button class="btn btn-whats" onclick="abrirWhatsappCliente(${p.id}, '${p.cliente_whatsapp}', '${p.cliente_nome}', '${p.status}')">WhatsApp cliente</button>
+            <button class="btn btn-muted" onclick="imprimirPedido(${p.id})">Imprimir</button>
           </div>
         </div>
       `).join("");
+    }
+
+    async function carregarPedidos() {
+      const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
+      const data = await res.json();
+      const novosPedidos = data.pedidos || [];
+
+      const maiorIdAtual = novosPedidos.length ? Math.max(...novosPedidos.map(p => Number(p.id))) : 0;
+
+      if (ultimoMaiorPedidoId && maiorIdAtual > ultimoMaiorPedidoId) {
+        mostrarAlertaNovoPedido();
+      }
+
+      ultimoMaiorPedidoId = maiorIdAtual;
+      pedidos = novosPedidos;
+
+      document.getElementById("statPedidos").textContent = pedidos.length;
+      document.getElementById("statPendentes").textContent =
+        pedidos.filter(p => String(p.status).toLowerCase() === "novo").length;
+
+      const faturamento = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
+      document.getElementById("statFaturamento").textContent = `R$ ${formatarPreco(faturamento)}`;
+
+      renderPedidos();
     }
 
     function abrirWhatsappCliente(id, whatsapp, clienteNome, status) {
@@ -856,6 +1032,51 @@
       });
 
       await carregarPedidos();
+    }
+
+    function imprimirPedido(id) {
+      const pedido = pedidos.find(p => Number(p.id) === Number(id));
+      if (!pedido) return;
+
+      const janela = window.open("", "_blank");
+      janela.document.write(`
+        <html>
+        <head>
+          <title>Pedido #${pedido.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
+            h1 { margin-bottom: 10px; }
+            p { margin: 6px 0; }
+            hr { margin: 16px 0; }
+            .item { display: flex; justify-content: space-between; margin: 6px 0; }
+          </style>
+        </head>
+        <body>
+          <h1>Pedido #${pedido.id}</h1>
+          <p><strong>Loja:</strong> ${empresa.nome}</p>
+          <p><strong>Cliente:</strong> ${pedido.cliente_nome}</p>
+          <p><strong>WhatsApp:</strong> ${pedido.cliente_whatsapp}</p>
+          <p><strong>Endereço:</strong> ${pedido.endereco}</p>
+          <p><strong>Status:</strong> ${pedido.status}</p>
+          <hr>
+          <h3>Itens</h3>
+          ${(pedido.itens || []).map(item => `
+            <div class="item">
+              <span>${item.quantidade}x ${item.produto_nome}</span>
+              <span>R$ ${formatarPreco(item.preco)}</span>
+            </div>
+          `).join("")}
+          <hr>
+          <p><strong>Total:</strong> R$ ${formatarPreco(pedido.total)}</p>
+          <script>
+            window.onload = function() {
+              window.print();
+            }
+          <\/script>
+        </body>
+        </html>
+      `);
+      janela.document.close();
     }
 
     async function iniciar() {
