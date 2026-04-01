@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+  margin: 0;
+}
+
+.topo {
+  background: #ff5722;
+  color: white;
+  padding: 20px;
+  font-size: 22px;
+}
+
+.container {
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.aceitar { background: green; color: white; }
+.preparando { background: orange; color: white; }
+.entregue { background: blue; color: white; }
+</style>
+</head>
+
+<body>
+
+<div class="topo">📦 Painel de Pedidos</div>
+
+<div class="container" id="pedidos"></div>
+
+<script>
+const EMPRESA_ID = 1;
+
+async function carregarPedidos() {
+  const res = await fetch(`/admin/pedidos/${EMPRESA_ID}`);
+  const data = await res.json();
+
+  const div = document.getElementById("pedidos");
+  div.innerHTML = "";
+
+  data.pedidos.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "card";
+
+    el.innerHTML = `
+      <b>Pedido #${p.id}</b><br>
+      Cliente: ${p.cliente_nome}<br>
+      Total: R$ ${p.total}<br>
+      Status: ${p.status}<br><br>
+
+      <button class="aceitar" onclick="mudar(${p.id}, 'aceito')">Aceitar</button>
+      <button class="preparando" onclick="mudar(${p.id}, 'preparando')">Preparando</button>
+      <button class="entregue" onclick="mudar(${p.id}, 'entregue')">Entregue</button>
+    `;
+
+    div.appendChild(el);
+  });
+}
+
+async function mudar(id, status) {
+  await fetch(`/admin/pedidos/${id}/status`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status })
+  });
+
+  carregarPedidos();
+}
+
+setInterval(carregarPedidos, 3000);
+carregarPedidos();
+</script>
+
+</body>
+</html>
