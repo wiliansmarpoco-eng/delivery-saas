@@ -201,12 +201,6 @@
       gap: 18px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
     .input, .select, .textarea {
       width: 100%;
       padding: 14px;
@@ -261,10 +255,16 @@
       color: #111827;
     }
 
+    .btn-whats {
+      background: linear-gradient(135deg, #22c55e, #15803d);
+      color: white;
+    }
+
     .btn-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      margin-top: 10px;
     }
 
     .produto-card,
@@ -391,6 +391,21 @@
       padding: 14px;
       word-break: break-all;
       margin-bottom: 10px;
+    }
+
+    .qr-box {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      display: inline-block;
+    }
+
+    .qr-box img {
+      width: 180px;
+      height: 180px;
+      display: block;
     }
 
     @media (max-width: 1100px) {
@@ -556,6 +571,15 @@
       alert("Copiado com sucesso");
     }
 
+    function gerarLinkWhatsapp(numero, mensagem) {
+      const numeroLimpo = String(numero || "").replace(/\D/g, "");
+      return `https://wa.me/55${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
+    }
+
+    function mensagemStatusPedido(pedido, status) {
+      return `Olá, ${pedido.cliente_nome}! Seu pedido #${pedido.id} na loja ${empresa.nome} agora está com o status: ${status}.`;
+    }
+
     async function carregarEmpresa() {
       const res = await fetch(`${API_URL}/produtos/${SLUG}`);
       const data = await res.json();
@@ -577,6 +601,10 @@
         <p><strong>Status:</strong> ${empresa.aberta ? "Aberto" : "Fechado"}</p>
       `;
 
+      const linkCardapio = `${API_URL}/`;
+
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(linkCardapio)}`;
+
       document.getElementById("dadosLoja").innerHTML = `
         <div class="loja-box">
           <img class="loja-logo" src="${empresa.logo_url || "https://placehold.co/120x120?text=Logo"}" onerror="this.src='https://placehold.co/120x120?text=Logo'">
@@ -587,10 +615,14 @@
             <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
             <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br><br>
 
-            <div class="link-box">${API_URL}/</div>
+            <div class="link-box">${linkCardapio}</div>
             <div class="btn-row">
-              <button class="btn btn-info" onclick="window.open('${API_URL}/', '_blank')">Ver cardápio</button>
-              <button class="btn btn-warning" onclick="copiarTexto('${API_URL}/')">Copiar link</button>
+              <button class="btn btn-info" onclick="window.open('${linkCardapio}', '_blank')">Ver cardápio</button>
+              <button class="btn btn-warning" onclick="copiarTexto('${linkCardapio}')">Copiar link</button>
+            </div>
+
+            <div class="qr-box">
+              <img src="${qrCodeUrl}" alt="QR Code do cardápio">
             </div>
           </div>
         </div>
@@ -778,10 +810,11 @@
           </div>
 
           <div class="btn-row">
-            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito')">Aceitar</button>
-            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando')">Preparando</button>
-            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu')">Saiu para entrega</button>
-            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue')">Entregue</button>
+            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Aceitar</button>
+            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Preparando</button>
+            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu para entrega', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Saiu para entrega</button>
+            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue', '${p.cliente_whatsapp}', '${p.cliente_nome}')">Entregue</button>
+            <button class="btn btn-whats" onclick="abrirWhatsappCliente(${p.id}, '${p.cliente_whatsapp}', '${p.cliente_nome}', '${p.status}')">WhatsApp cliente</button>
           </div>
         </div>
       `).join("");
@@ -790,12 +823,22 @@
       lista.innerHTML = pedidosHtml;
     }
 
-    async function mudarStatus(id, status) {
+    function abrirWhatsappCliente(id, whatsapp, clienteNome, status) {
+      const mensagem = `Olá, ${clienteNome}! Aqui é da loja ${empresa.nome}. O status do seu pedido #${id} é: ${status}.`;
+      const link = gerarLinkWhatsapp(whatsapp, mensagem);
+      window.open(link, "_blank");
+    }
+
+    async function mudarStatus(id, status, whatsapp, clienteNome) {
       await fetch(`${API_URL}/admin/pedidos/${id}/status`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ status })
       });
+
+      const mensagem = `Olá, ${clienteNome}! Seu pedido #${id} na loja ${empresa.nome} agora está com o status: ${status}.`;
+      const link = gerarLinkWhatsapp(whatsapp, mensagem);
+      window.open(link, "_blank");
 
       await carregarPedidos();
     }
