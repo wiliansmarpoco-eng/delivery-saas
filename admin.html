@@ -8,10 +8,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { background: #f4f6fb; color: #1f2937; }
 
-    .layout {
-      display: flex;
-      min-height: 100vh;
-    }
+    .layout { display: flex; min-height: 100vh; }
 
     .sidebar {
       width: 270px;
@@ -24,35 +21,16 @@
       box-shadow: 4px 0 20px rgba(0,0,0,0.08);
     }
 
-    .brand {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
-
+    .brand { display: flex; gap: 14px; align-items: center; }
     .brand-badge {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
+      width: 54px; height: 54px; border-radius: 16px;
       background: linear-gradient(135deg, #ff7a18, #ff5722);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 20px;
-      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 20px; color: white;
       box-shadow: 0 10px 20px rgba(255, 87, 34, 0.25);
     }
-
-    .brand h1 {
-      font-size: 20px;
-      margin-bottom: 4px;
-    }
-
-    .brand p {
-      font-size: 13px;
-      color: #cbd5e1;
-    }
+    .brand h1 { font-size: 20px; margin-bottom: 4px; }
+    .brand p { font-size: 13px; color: #cbd5e1; }
 
     .loja-card {
       background: rgba(255,255,255,0.08);
@@ -60,62 +38,30 @@
       border-radius: 18px;
       padding: 16px;
     }
+    .loja-card h3 { font-size: 15px; margin-bottom: 8px; }
+    .loja-card p { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; }
 
-    .loja-card h3 {
-      font-size: 15px;
-      margin-bottom: 8px;
-    }
-
-    .loja-card p {
-      font-size: 13px;
-      color: #cbd5e1;
-      margin-bottom: 5px;
-    }
-
-    .menu {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
+    .menu { display: flex; flex-direction: column; gap: 10px; }
     .menu button {
-      background: transparent;
-      color: white;
+      background: transparent; color: white;
       border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 14px;
-      padding: 14px 16px;
-      text-align: left;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.2s;
+      border-radius: 14px; padding: 14px 16px;
+      text-align: left; font-size: 15px; cursor: pointer; transition: 0.2s;
     }
-
-    .menu button:hover,
-    .menu button.active {
+    .menu button:hover, .menu button.active {
       background: linear-gradient(135deg, #ff7a18, #ff5722);
       border-color: transparent;
       box-shadow: 0 8px 18px rgba(255,87,34,0.25);
     }
 
-    .sidebar-footer {
-      margin-top: auto;
-    }
-
+    .sidebar-footer { margin-top: auto; }
     .sidebar-footer button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 14px;
+      width: 100%; padding: 14px; border: none; border-radius: 14px;
       background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
+      color: white; font-weight: bold; cursor: pointer;
     }
 
-    .main {
-      flex: 1;
-      padding: 28px;
-    }
+    .main { flex: 1; padding: 28px; }
 
     .hero {
       background: linear-gradient(135deg, #fff7ed, #ffffff);
@@ -125,17 +71,8 @@
       margin-bottom: 22px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.04);
     }
-
-    .hero h2 {
-      font-size: 24px;
-      margin-bottom: 6px;
-    }
-
-    .hero p {
-      color: #475569;
-      margin-bottom: 14px;
-    }
-
+    .hero h2 { font-size: 24px; margin-bottom: 6px; }
+    .hero p { color: #475569; margin-bottom: 14px; }
     .hero .pill {
       display: inline-block;
       padding: 10px 14px;
@@ -160,26 +97,11 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.05);
       border: 1px solid #eef2f7;
     }
+    .stat .label { color: #64748b; font-size: 14px; margin-bottom: 12px; }
+    .stat .value { font-size: 38px; font-weight: bold; color: #0f172a; }
 
-    .stat .label {
-      color: #64748b;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .stat .value {
-      font-size: 38px;
-      font-weight: bold;
-      color: #0f172a;
-    }
-
-    .tab {
-      display: none;
-    }
-
-    .tab.active {
-      display: block;
-    }
+    .tab { display: none; }
+    .tab.active { display: block; }
 
     .panel {
       background: white;
@@ -189,19 +111,12 @@
       border: 1px solid #eef2f7;
       margin-bottom: 22px;
     }
+    .panel h3 { font-size: 18px; margin-bottom: 16px; }
 
-    .panel h3 {
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
+    .grid-2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+    .grid-2-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 18px;
-    }
-
-    .input, .select, .textarea {
+    .input, .select, .textarea, .file {
       width: 100%;
       padding: 14px;
       border: 1px solid #dbe2ea;
@@ -210,67 +125,24 @@
       font-size: 14px;
       background: #fff;
     }
-
-    .textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
+    .textarea { min-height: 100px; resize: vertical; }
 
     .btn {
-      border: none;
-      border-radius: 14px;
-      padding: 13px 16px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
+      border: none; border-radius: 14px;
+      padding: 13px 16px; cursor: pointer;
+      font-weight: bold; font-size: 14px;
     }
+    .btn-primary { background: linear-gradient(135deg, #ff7a18, #ff5722); color: white; }
+    .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+    .btn-info { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+    .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .btn-muted { background: #e5e7eb; color: #111827; }
+    .btn-whats { background: linear-gradient(135deg, #22c55e, #15803d); color: white; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #ff7a18, #ff5722);
-      color: white;
-    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 
-    .btn-success {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-    }
-
-    .btn-info {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-    }
-
-    .btn-warning {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: white;
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-    }
-
-    .btn-muted {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-whats {
-      background: linear-gradient(135deg, #22c55e, #15803d);
-      color: white;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .produto-card,
-    .pedido-card,
-    .categoria-card,
-    .pedido-resumo {
+    .produto-card, .pedido-card, .categoria-card, .pedido-resumo {
       border: 1px solid #edf2f7;
       background: white;
       border-radius: 18px;
@@ -293,30 +165,16 @@
     }
 
     .produto-img {
-      width: 72px;
-      height: 72px;
+      width: 72px; height: 72px;
       border-radius: 14px;
       object-fit: cover;
       background: #f3f4f6;
       border: 1px solid #e5e7eb;
     }
 
-    .produto-info h4 {
-      font-size: 18px;
-      margin-bottom: 6px;
-    }
-
-    .produto-info p {
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-
-    .preco {
-      color: #ea580c;
-      font-size: 22px;
-      font-weight: bold;
-    }
+    .produto-info h4 { font-size: 18px; margin-bottom: 6px; }
+    .produto-info p { color: #64748b; font-size: 13px; margin-bottom: 4px; }
+    .preco { color: #ea580c; font-size: 22px; font-weight: bold; }
 
     .tag {
       display: inline-block;
@@ -328,38 +186,12 @@
       font-weight: bold;
       margin-right: 6px;
     }
+    .tag.green { background: #dcfce7; color: #166534; }
+    .tag.orange { background: #ffedd5; color: #9a3412; }
+    .tag.blue { background: #dbeafe; color: #1d4ed8; }
 
-    .tag.green {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .tag.orange {
-      background: #ffedd5;
-      color: #9a3412;
-    }
-
-    .tag.blue {
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .tag.red {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .pedido-card h4,
-    .pedido-resumo h4 {
-      margin-bottom: 8px;
-      font-size: 18px;
-    }
-
-    .pedido-meta {
-      color: #475569;
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
+    .pedido-card h4, .pedido-resumo h4 { margin-bottom: 8px; font-size: 18px; }
+    .pedido-meta { color: #475569; font-size: 14px; margin-bottom: 6px; }
 
     .pedido-itens {
       background: #f8fafc;
@@ -375,25 +207,32 @@
       font-size: 14px;
     }
 
-    .empty {
-      color: #64748b;
-      padding: 18px 0;
-    }
+    .empty { color: #64748b; padding: 18px 0; }
 
     .loja-box {
       display: grid;
-      grid-template-columns: 120px 1fr;
+      grid-template-columns: 140px 1fr;
       gap: 18px;
-      align-items: center;
+      align-items: start;
     }
 
     .loja-logo {
-      width: 120px;
-      height: 120px;
+      width: 140px; height: 140px;
       border-radius: 22px;
       object-fit: cover;
       background: #f3f4f6;
       border: 1px solid #e5e7eb;
+    }
+
+    .loja-banner {
+      width: 100%;
+      max-width: 420px;
+      height: 140px;
+      border-radius: 22px;
+      object-fit: cover;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      margin-top: 12px;
     }
 
     .link-box {
@@ -415,14 +254,34 @@
     }
 
     .qr-box img {
-      width: 180px;
-      height: 180px;
-      display: block;
+      width: 180px; height: 180px; display: block;
+    }
+
+    .preview-box {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .preview-box img {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 8px;
     }
 
     @media (max-width: 1100px) {
       .cards { grid-template-columns: repeat(2, 1fr); }
-      .grid-2 { grid-template-columns: 1fr; }
+      .grid-2, .grid-2-equal { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 800px) {
@@ -511,6 +370,11 @@
             <textarea id="produtoDescricao" class="textarea" placeholder="Descrição"></textarea>
             <input id="produtoPreco" class="input" placeholder="Preço" />
             <input id="produtoImagem" class="input" placeholder="URL da imagem" />
+            <div class="subtitulo">Ou escolha uma imagem do computador</div>
+            <input id="produtoImagemArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoProduto(event)" />
+            <div class="preview-box">
+              <img id="previewProduto" src="https://placehold.co/110x110?text=Produto" alt="Preview produto">
+            </div>
             <select id="produtoCategoria" class="select"></select>
             <div class="btn-row">
               <button class="btn btn-primary" onclick="salvarProduto()">Salvar produto</button>
@@ -548,9 +412,42 @@
       </section>
 
       <section id="tab-loja" class="tab">
-        <div class="panel">
-          <h3>Minha loja</h3>
-          <div id="dadosLoja" class="empty">Carregando...</div>
+        <div class="grid-2-equal">
+          <div class="panel">
+            <h3>Minha loja</h3>
+            <div id="dadosLoja" class="empty">Carregando...</div>
+          </div>
+
+          <div class="panel">
+            <h3>Editar loja</h3>
+            <input id="lojaNome" class="input" placeholder="Nome da loja" />
+            <input id="lojaEmail" class="input" placeholder="Email da loja" />
+            <input id="lojaTelefone" class="input" placeholder="Telefone" />
+            <input id="lojaCategoria" class="input" placeholder="Categoria" />
+            <input id="lojaHorario" class="input" placeholder="Horário" />
+
+            <select id="lojaAberta" class="select">
+              <option value="true">Loja aberta</option>
+              <option value="false">Loja fechada</option>
+            </select>
+
+            <input id="lojaLogoUrl" class="input" placeholder="URL da logo" />
+            <div class="subtitulo">Ou escolha a logo do computador</div>
+            <input id="lojaLogoArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoLogo(event)" />
+
+            <input id="lojaBannerUrl" class="input" placeholder="URL do banner" />
+            <div class="subtitulo">Ou escolha o banner do computador</div>
+            <input id="lojaBannerArquivo" class="file" type="file" accept="image/*" onchange="lerArquivoBanner(event)" />
+
+            <div class="preview-box">
+              <img id="previewLogo" src="https://placehold.co/110x110?text=Logo" alt="Preview logo">
+              <img id="previewBanner" src="https://placehold.co/110x110?text=Banner" alt="Preview banner">
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="salvarLoja()">Salvar alterações da loja</button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -566,6 +463,9 @@
     let categorias = [];
     let pedidos = [];
     let editandoProdutoId = null;
+    let imagemProdutoAtual = "";
+    let logoAtual = "";
+    let bannerAtual = "";
 
     function formatarPreco(valor) {
       return Number(valor || 0).toFixed(2).replace(".", ",");
@@ -590,13 +490,48 @@
 
     function tagStatus(status) {
       const s = String(status || "").toLowerCase();
-
       if (s.includes("novo")) return `<span class="tag orange">${status}</span>`;
       if (s.includes("aceito")) return `<span class="tag blue">${status}</span>`;
       if (s.includes("preparando")) return `<span class="tag orange">${status}</span>`;
       if (s.includes("saiu")) return `<span class="tag blue">${status}</span>`;
       if (s.includes("entregue")) return `<span class="tag green">${status}</span>`;
       return `<span class="tag">${status}</span>`;
+    }
+
+    function lerArquivo(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        callback(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function lerArquivoProduto(event) {
+      const file = event.target.files[0];
+      lerArquivo(file, (base64) => {
+        imagemProdutoAtual = base64;
+        document.getElementById("produtoImagem").value = "";
+        document.getElementById("previewProduto").src = base64;
+      });
+    }
+
+    function lerArquivoLogo(event) {
+      const file = event.target.files[0];
+      lerArquivo(file, (base64) => {
+        logoAtual = base64;
+        document.getElementById("lojaLogoUrl").value = "";
+        document.getElementById("previewLogo").src = base64;
+      });
+    }
+
+    function lerArquivoBanner(event) {
+      const file = event.target.files[0];
+      lerArquivo(file, (base64) => {
+        bannerAtual = base64;
+        document.getElementById("lojaBannerUrl").value = "";
+        document.getElementById("previewBanner").src = base64;
+      });
     }
 
     async function carregarEmpresa() {
@@ -625,11 +560,12 @@
 
       document.getElementById("dadosLoja").innerHTML = `
         <div class="loja-box">
-          <img class="loja-logo" src="${empresa.logo_url || "https://placehold.co/120x120?text=Logo"}" onerror="this.src='https://placehold.co/120x120?text=Logo'">
+          <img class="loja-logo" src="${empresa.logo_url || "https://placehold.co/140x140?text=Logo"}" onerror="this.src='https://placehold.co/140x140?text=Logo'">
           <div>
             <p><strong>Nome:</strong> ${empresa.nome}</p><br>
             <p><strong>Slug:</strong> ${SLUG}</p><br>
             <p><strong>Telefone:</strong> ${empresa.telefone || "-"}</p><br>
+            <p><strong>Email:</strong> ${empresa.email || "-"}</p><br>
             <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
             <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br><br>
 
@@ -642,9 +578,63 @@
             <div class="qr-box">
               <img src="${qrCodeUrl}" alt="QR Code do cardápio">
             </div>
+
+            <img class="loja-banner" src="${empresa.banner_url || "https://placehold.co/420x140?text=Banner"}" onerror="this.src='https://placehold.co/420x140?text=Banner'">
           </div>
         </div>
       `;
+
+      document.getElementById("lojaNome").value = empresa.nome || "";
+      document.getElementById("lojaEmail").value = empresa.email || "";
+      document.getElementById("lojaTelefone").value = empresa.telefone || "";
+      document.getElementById("lojaCategoria").value = empresa.categoria || "";
+      document.getElementById("lojaHorario").value = empresa.horario || "";
+      document.getElementById("lojaAberta").value = String(empresa.aberta);
+      document.getElementById("lojaLogoUrl").value = empresa.logo_url || "";
+      document.getElementById("lojaBannerUrl").value = empresa.banner_url || "";
+
+      logoAtual = empresa.logo_url || "";
+      bannerAtual = empresa.banner_url || "";
+
+      document.getElementById("previewLogo").src = empresa.logo_url || "https://placehold.co/110x110?text=Logo";
+      document.getElementById("previewBanner").src = empresa.banner_url || "https://placehold.co/110x110?text=Banner";
+    }
+
+    async function salvarLoja() {
+      const nome = document.getElementById("lojaNome").value.trim();
+      const email = document.getElementById("lojaEmail").value.trim();
+      const telefone = document.getElementById("lojaTelefone").value.trim();
+      const categoria = document.getElementById("lojaCategoria").value.trim();
+      const horario = document.getElementById("lojaHorario").value.trim();
+      const aberta = document.getElementById("lojaAberta").value;
+      const logoUrlTexto = document.getElementById("lojaLogoUrl").value.trim();
+      const bannerUrlTexto = document.getElementById("lojaBannerUrl").value.trim();
+
+      const payload = {
+        nome,
+        email,
+        telefone,
+        categoria,
+        horario,
+        aberta,
+        logo_url: logoUrlTexto || logoAtual || "",
+        banner_url: bannerUrlTexto || bannerAtual || ""
+      };
+
+      const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.erro || "Erro ao salvar loja");
+        return;
+      }
+
+      alert("Loja atualizada com sucesso");
+      await carregarEmpresa();
     }
 
     async function carregarCategorias() {
@@ -723,29 +713,34 @@
       if (!p) return;
 
       editandoProdutoId = p.id;
+      imagemProdutoAtual = p.imagem_url || "";
       document.getElementById("produtoNome").value = p.nome || "";
       document.getElementById("produtoDescricao").value = p.descricao || "";
       document.getElementById("produtoPreco").value = p.preco || "";
       document.getElementById("produtoImagem").value = p.imagem_url || "";
       document.getElementById("produtoCategoria").value = p.categoria_id || "";
+      document.getElementById("previewProduto").src = p.imagem_url || "https://placehold.co/110x110?text=Produto";
       window.scrollTo({ top: 0, behavior: "smooth" });
       alert("Produto carregado para edição");
     }
 
     function limparFormularioProduto() {
       editandoProdutoId = null;
+      imagemProdutoAtual = "";
       document.getElementById("produtoNome").value = "";
       document.getElementById("produtoDescricao").value = "";
       document.getElementById("produtoPreco").value = "";
       document.getElementById("produtoImagem").value = "";
+      document.getElementById("produtoImagemArquivo").value = "";
       document.getElementById("produtoCategoria").value = "";
+      document.getElementById("previewProduto").src = "https://placehold.co/110x110?text=Produto";
     }
 
     async function salvarProduto() {
       const nome = document.getElementById("produtoNome").value.trim();
       const descricao = document.getElementById("produtoDescricao").value.trim();
       const preco = document.getElementById("produtoPreco").value.trim();
-      const imagem_url = document.getElementById("produtoImagem").value.trim();
+      const imagemUrlTexto = document.getElementById("produtoImagem").value.trim();
       const categoria_id = document.getElementById("produtoCategoria").value;
 
       if (!nome || !preco) return alert("Preencha nome e preço");
@@ -754,7 +749,7 @@
         nome,
         descricao,
         preco,
-        imagem_url,
+        imagem_url: imagemUrlTexto || imagemProdutoAtual || "",
         categoria_id: categoria_id || null,
         ativo: true,
         empresa_id: EMPRESA_ID
