@@ -422,7 +422,50 @@ app.put("/admin/pedidos/:id/status", async (req, res) => {
     res.status(500).json({ erro: "Erro ao atualizar status", detalhe: error.message });
   }
 });
+app.put("/admin/empresa/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      nome,
+      telefone,
+      categoria,
+      horario,
+      aberta,
+      logo_url,
+      banner_url,
+      email
+    } = req.body;
 
+    const result = await query(
+      `UPDATE empresas
+       SET nome = $1,
+           telefone = $2,
+           categoria = $3,
+           horario = $4,
+           aberta = $5,
+           logo_url = $6,
+           banner_url = $7,
+           email = $8
+       WHERE id = $9
+       RETURNING *`,
+      [
+        nome || "",
+        telefone || "",
+        categoria || "",
+        horario || "",
+        aberta === true || aberta === "true",
+        logo_url || "",
+        banner_url || "",
+        email || "",
+        id
+      ]
+    );
+
+    res.json({ ok: true, empresa: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ erro: "Erro ao atualizar empresa", detalhe: error.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
