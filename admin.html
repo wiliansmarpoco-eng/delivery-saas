@@ -1,95 +1,814 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Painel Admin</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel da Loja</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f4f6fb; color: #1f2937; }
 
-<style>
-body {
-  font-family: Arial;
-  background: #f5f5f5;
-  margin: 0;
-}
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
-.topo {
-  background: #ff5722;
-  color: white;
-  padding: 20px;
-  font-size: 22px;
-}
+    .sidebar {
+      width: 270px;
+      background: linear-gradient(180deg, #0f172a, #172554);
+      color: white;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+    }
 
-.container {
-  padding: 20px;
-}
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
 
-.card {
-  background: white;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-}
+    .brand-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(255, 87, 34, 0.25);
+    }
 
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+    .brand h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
 
-.aceitar { background: green; color: white; }
-.preparando { background: orange; color: white; }
-.entregue { background: blue; color: white; }
-</style>
+    .brand p {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .loja-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .loja-card h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .loja-card p {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu button {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .menu button:hover,
+    .menu button.active {
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(255,87,34,0.25);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+    }
+
+    .sidebar-footer button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .main {
+      flex: 1;
+      padding: 28px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fff7ed, #ffffff);
+      border: 1px solid #fed7aa;
+      border-radius: 24px;
+      padding: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .hero h2 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .hero p {
+      color: #475569;
+      margin-bottom: 14px;
+    }
+
+    .hero .pill {
+      display: inline-block;
+      padding: 10px 14px;
+      border: 1px solid #fdba74;
+      border-radius: 14px;
+      background: white;
+      color: #9a3412;
+      font-weight: bold;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      border: 1px solid #eef2f7;
+    }
+
+    .stat .label {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .stat .value {
+      font-size: 38px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      border: 1px solid #eef2f7;
+      margin-bottom: 22px;
+    }
+
+    .panel h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #dbe2ea;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+
+    .btn-muted {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .produto-card,
+    .pedido-card,
+    .categoria-card {
+      border: 1px solid #edf2f7;
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .produto-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .produto-left {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .produto-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      object-fit: cover;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+
+    .produto-info h4 {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .produto-info p {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .preco {
+      color: #ea580c;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    .tag.green {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag.orange {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+
+    .pedido-card h4 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .pedido-meta {
+      color: #475569;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .pedido-itens {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .empty {
+      color: #64748b;
+      padding: 18px 0;
+    }
+
+    .loja-box {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .loja-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 22px;
+      object-fit: cover;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+
+    .link-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 800px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .cards { grid-template-columns: 1fr; }
+      .produto-card { flex-direction: column; align-items: flex-start; }
+      .loja-box { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">PJ</div>
+        <div>
+          <h1>PediJá</h1>
+          <p>Painel do estabelecimento</p>
+        </div>
+      </div>
 
-<div class="topo">📦 Painel de Pedidos</div>
+      <div class="loja-card" id="sidebarLoja">
+        <h3>Carregando loja...</h3>
+        <p>Aguarde...</p>
+      </div>
 
-<div class="container" id="pedidos"></div>
+      <nav class="menu">
+        <button class="active" onclick="trocarTab('dashboard', this)">Dashboard</button>
+        <button onclick="trocarTab('produtos', this)">Produtos</button>
+        <button onclick="trocarTab('categorias', this)">Categorias</button>
+        <button onclick="trocarTab('pedidos', this)">Pedidos</button>
+        <button onclick="trocarTab('loja', this)">Minha loja</button>
+      </nav>
 
-<script>
-const EMPRESA_ID = 1;
+      <div class="sidebar-footer">
+        <button onclick="location.reload()">Atualizar painel</button>
+      </div>
+    </aside>
 
-async function carregarPedidos() {
-  const res = await fetch(`/admin/pedidos/${EMPRESA_ID}`);
-  const data = await res.json();
+    <main class="main">
+      <section class="hero">
+        <h2>Painel do Estabelecimento</h2>
+        <p>Gerencie produtos, pedidos e sua loja em um só lugar.</p>
+        <span class="pill" id="pillLoja">Loja logada: carregando...</span>
+      </section>
 
-  const div = document.getElementById("pedidos");
-  div.innerHTML = "";
+      <section class="cards">
+        <div class="stat">
+          <div class="label">Produtos</div>
+          <div class="value" id="statProdutos">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Pedidos</div>
+          <div class="value" id="statPedidos">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Pendentes</div>
+          <div class="value" id="statPendentes">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Faturamento</div>
+          <div class="value" id="statFaturamento">R$ 0</div>
+        </div>
+      </section>
 
-  data.pedidos.forEach(p => {
-    const el = document.createElement("div");
-    el.className = "card";
+      <section id="tab-dashboard" class="tab active">
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Últimos pedidos</h3>
+            <div id="dashboardPedidos" class="empty">Carregando...</div>
+          </div>
 
-    el.innerHTML = `
-      <b>Pedido #${p.id}</b><br>
-      Cliente: ${p.cliente_nome}<br>
-      Total: R$ ${p.total}<br>
-      Status: ${p.status}<br><br>
+          <div class="panel">
+            <h3>Resumo da loja</h3>
+            <div id="dashboardResumo" class="empty">Carregando...</div>
+          </div>
+        </div>
+      </section>
 
-      <button class="aceitar" onclick="mudar(${p.id}, 'aceito')">Aceitar</button>
-      <button class="preparando" onclick="mudar(${p.id}, 'preparando')">Preparando</button>
-      <button class="entregue" onclick="mudar(${p.id}, 'entregue')">Entregue</button>
-    `;
+      <section id="tab-produtos" class="tab">
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Novo produto</h3>
+            <input id="produtoNome" class="input" placeholder="Nome do produto" />
+            <textarea id="produtoDescricao" class="textarea" placeholder="Descrição"></textarea>
+            <input id="produtoPreco" class="input" placeholder="Preço" />
+            <input id="produtoImagem" class="input" placeholder="URL da imagem" />
+            <select id="produtoCategoria" class="select"></select>
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="salvarProduto()">Salvar produto</button>
+              <button class="btn btn-muted" onclick="limparFormularioProduto()">Limpar</button>
+            </div>
+          </div>
 
-    div.appendChild(el);
-  });
-}
+          <div class="panel">
+            <h3>Lista de produtos</h3>
+            <div id="listaProdutos" class="empty">Carregando...</div>
+          </div>
+        </div>
+      </section>
 
-async function mudar(id, status) {
-  await fetch(`/admin/pedidos/${id}/status`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status })
-  });
+      <section id="tab-categorias" class="tab">
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Nova categoria</h3>
+            <input id="categoriaNome" class="input" placeholder="Nome da categoria" />
+            <button class="btn btn-primary" onclick="salvarCategoria()">Criar categoria</button>
+          </div>
 
-  carregarPedidos();
-}
+          <div class="panel">
+            <h3>Categorias da loja</h3>
+            <div id="listaCategorias" class="empty">Carregando...</div>
+          </div>
+        </div>
+      </section>
 
-setInterval(carregarPedidos, 3000);
-carregarPedidos();
-</script>
+      <section id="tab-pedidos" class="tab">
+        <div class="panel">
+          <h3>Pedidos recebidos</h3>
+          <div id="listaPedidos" class="empty">Carregando...</div>
+        </div>
+      </section>
 
+      <section id="tab-loja" class="tab">
+        <div class="panel">
+          <h3>Minha loja</h3>
+          <div id="dadosLoja" class="empty">Carregando...</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
+    const EMPRESA_ID = 1;
+    const SLUG = "super-feliz";
+
+    let empresa = null;
+    let produtos = [];
+    let categorias = [];
+    let pedidos = [];
+    let editandoProdutoId = null;
+
+    function formatarPreco(valor) {
+      return Number(valor || 0).toFixed(2).replace(".", ",");
+    }
+
+    function trocarTab(tab, botao) {
+      document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".menu button").forEach(el => el.classList.remove("active"));
+      document.getElementById(`tab-${tab}`).classList.add("active");
+      botao.classList.add("active");
+    }
+
+    function copiarTexto(texto) {
+      navigator.clipboard.writeText(texto);
+      alert("Copiado com sucesso");
+    }
+
+    async function carregarEmpresa() {
+      const res = await fetch(`${API_URL}/produtos/${SLUG}`);
+      const data = await res.json();
+      empresa = data.empresa;
+
+      document.getElementById("pillLoja").textContent = `Loja logada: ${empresa.nome}`;
+      document.getElementById("sidebarLoja").innerHTML = `
+        <h3>${empresa.nome}</h3>
+        <p>${empresa.categoria || "Loja"}</p>
+        <p>${empresa.telefone || ""}</p>
+        <p>${empresa.horario || ""}</p>
+      `;
+
+      document.getElementById("dashboardResumo").innerHTML = `
+        <p><strong>Nome:</strong> ${empresa.nome}</p><br>
+        <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
+        <p><strong>Telefone:</strong> ${empresa.telefone || "-"}</p><br>
+        <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br>
+        <p><strong>Status:</strong> ${empresa.aberta ? "Aberto" : "Fechado"}</p>
+      `;
+
+      document.getElementById("dadosLoja").innerHTML = `
+        <div class="loja-box">
+          <img class="loja-logo" src="${empresa.logo_url || "https://placehold.co/120x120?text=Logo"}" onerror="this.src='https://placehold.co/120x120?text=Logo'">
+          <div>
+            <p><strong>Nome:</strong> ${empresa.nome}</p><br>
+            <p><strong>Slug:</strong> ${SLUG}</p><br>
+            <p><strong>Telefone:</strong> ${empresa.telefone || "-"}</p><br>
+            <p><strong>Categoria:</strong> ${empresa.categoria || "-"}</p><br>
+            <p><strong>Horário:</strong> ${empresa.horario || "-"}</p><br><br>
+
+            <div class="link-box">${API_URL}/</div>
+            <div class="btn-row">
+              <button class="btn btn-info" onclick="window.open('${API_URL}/', '_blank')">Ver cardápio</button>
+              <button class="btn btn-warning" onclick="copiarTexto('${API_URL}/')">Copiar link</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function carregarCategorias() {
+      const res = await fetch(`${API_URL}/admin/categorias/${EMPRESA_ID}`);
+      const data = await res.json();
+      categorias = data.categorias || [];
+
+      const select = document.getElementById("produtoCategoria");
+      select.innerHTML = `<option value="">Selecione a categoria</option>` +
+        categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+
+      const lista = document.getElementById("listaCategorias");
+      if (!categorias.length) {
+        lista.innerHTML = `<div class="empty">Nenhuma categoria cadastrada.</div>`;
+        return;
+      }
+
+      lista.innerHTML = categorias.map(c => `
+        <div class="categoria-card">
+          <strong>${c.nome}</strong>
+        </div>
+      `).join("");
+    }
+
+    async function salvarCategoria() {
+      const nome = document.getElementById("categoriaNome").value.trim();
+      if (!nome) return alert("Digite o nome da categoria");
+
+      await fetch(`${API_URL}/admin/categorias`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ nome, empresa_id: EMPRESA_ID })
+      });
+
+      document.getElementById("categoriaNome").value = "";
+      await carregarCategorias();
+    }
+
+    async function carregarProdutos() {
+      const res = await fetch(`${API_URL}/admin/produtos/${EMPRESA_ID}`);
+      const data = await res.json();
+      produtos = data.produtos || [];
+
+      document.getElementById("statProdutos").textContent = produtos.length;
+
+      const lista = document.getElementById("listaProdutos");
+      if (!produtos.length) {
+        lista.innerHTML = `<div class="empty">Nenhum produto cadastrado.</div>`;
+        return;
+      }
+
+      lista.innerHTML = produtos.map(p => `
+        <div class="produto-card">
+          <div class="produto-left">
+            <img class="produto-img" src="${p.imagem_url || "https://placehold.co/72x72?text=Produto"}" onerror="this.src='https://placehold.co/72x72?text=Produto'">
+            <div class="produto-info">
+              <h4>${p.nome}</h4>
+              <p>${p.descricao || "Sem descrição"}</p>
+              <p>
+                <span class="tag green">${p.ativo ? "Ativo" : "Inativo"}</span>
+                <span class="tag orange">${p.categoria_nome || "Sem categoria"}</span>
+              </p>
+              <div class="preco">R$ ${formatarPreco(p.preco)}</div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-info" onclick="editarProduto(${p.id})">Editar</button>
+            <button class="btn btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function editarProduto(id) {
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+
+      editandoProdutoId = p.id;
+      document.getElementById("produtoNome").value = p.nome || "";
+      document.getElementById("produtoDescricao").value = p.descricao || "";
+      document.getElementById("produtoPreco").value = p.preco || "";
+      document.getElementById("produtoImagem").value = p.imagem_url || "";
+      document.getElementById("produtoCategoria").value = p.categoria_id || "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      alert("Produto carregado para edição");
+    }
+
+    function limparFormularioProduto() {
+      editandoProdutoId = null;
+      document.getElementById("produtoNome").value = "";
+      document.getElementById("produtoDescricao").value = "";
+      document.getElementById("produtoPreco").value = "";
+      document.getElementById("produtoImagem").value = "";
+      document.getElementById("produtoCategoria").value = "";
+    }
+
+    async function salvarProduto() {
+      const nome = document.getElementById("produtoNome").value.trim();
+      const descricao = document.getElementById("produtoDescricao").value.trim();
+      const preco = document.getElementById("produtoPreco").value.trim();
+      const imagem_url = document.getElementById("produtoImagem").value.trim();
+      const categoria_id = document.getElementById("produtoCategoria").value;
+
+      if (!nome || !preco) return alert("Preencha nome e preço");
+
+      const payload = {
+        nome,
+        descricao,
+        preco,
+        imagem_url,
+        categoria_id: categoria_id || null,
+        ativo: true,
+        empresa_id: EMPRESA_ID
+      };
+
+      if (editandoProdutoId) {
+        await fetch(`${API_URL}/admin/produtos/${editandoProdutoId}`, {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+      } else {
+        await fetch(`${API_URL}/admin/produtos`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+      }
+
+      limparFormularioProduto();
+      await carregarProdutos();
+    }
+
+    async function excluirProduto(id) {
+      if (!confirm("Deseja excluir este produto?")) return;
+
+      await fetch(`${API_URL}/admin/produtos/${id}`, {
+        method: "DELETE"
+      });
+
+      await carregarProdutos();
+    }
+
+    async function carregarPedidos() {
+      const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
+      const data = await res.json();
+      pedidos = data.pedidos || [];
+
+      document.getElementById("statPedidos").textContent = pedidos.length;
+      document.getElementById("statPendentes").textContent =
+        pedidos.filter(p => p.status === "novo").length;
+
+      const faturamento = pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
+      document.getElementById("statFaturamento").textContent = `R$ ${formatarPreco(faturamento)}`;
+
+      const dash = document.getElementById("dashboardPedidos");
+      const lista = document.getElementById("listaPedidos");
+
+      if (!pedidos.length) {
+        dash.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
+        lista.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
+        return;
+      }
+
+      const pedidosHtml = pedidos.map(p => `
+        <div class="pedido-card">
+          <h4>Pedido #${p.id}</h4>
+          <div class="pedido-meta"><strong>Cliente:</strong> ${p.cliente_nome}</div>
+          <div class="pedido-meta"><strong>WhatsApp:</strong> ${p.cliente_whatsapp}</div>
+          <div class="pedido-meta"><strong>Endereço:</strong> ${p.endereco}</div>
+          <div class="pedido-meta"><strong>Status:</strong> <span class="tag">${p.status}</span></div>
+          <div class="pedido-meta"><strong>Total:</strong> R$ ${formatarPreco(p.total)}</div>
+
+          <div class="pedido-itens">
+            ${(p.itens || []).map(item => `
+              <div class="pedido-item">
+                <span>${item.quantidade}x ${item.produto_nome}</span>
+                <span>R$ ${formatarPreco(item.preco)}</span>
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-success" onclick="mudarStatus(${p.id}, 'aceito')">Aceitar</button>
+            <button class="btn btn-warning" onclick="mudarStatus(${p.id}, 'preparando')">Preparando</button>
+            <button class="btn btn-info" onclick="mudarStatus(${p.id}, 'saiu')">Saiu para entrega</button>
+            <button class="btn btn-danger" onclick="mudarStatus(${p.id}, 'entregue')">Entregue</button>
+          </div>
+        </div>
+      `).join("");
+
+      dash.innerHTML = pedidosHtml;
+      lista.innerHTML = pedidosHtml;
+    }
+
+    async function mudarStatus(id, status) {
+      await fetch(`${API_URL}/admin/pedidos/${id}/status`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ status })
+      });
+
+      await carregarPedidos();
+    }
+
+    async function iniciar() {
+      await carregarEmpresa();
+      await carregarCategorias();
+      await carregarProdutos();
+      await carregarPedidos();
+    }
+
+    setInterval(carregarPedidos, 5000);
+    iniciar();
+  </script>
 </body>
 </html>
