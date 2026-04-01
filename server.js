@@ -6,7 +6,7 @@ const path = require('path');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname)));
 
 const pool = new Pool({
@@ -37,7 +37,7 @@ app.post('/admin/login', async (req, res) => {
     const { email, senha } = req.body;
 
     const result = await pool.query(
-      `SELECT id, nome, slug, telefone, email, horario, aberta, tipo
+      `SELECT id, nome, slug, telefone, email, horario, aberta, tipo, categoria, logo_url, banner_url, link_cardapio
        FROM empresas
        WHERE email = $1 AND senha = $2
        LIMIT 1`,
@@ -61,15 +61,49 @@ app.post('/admin/login', async (req, res) => {
   }
 });
 
+/* LISTAR EMPRESAS */
+app.get('/admin/empresas', async (req, res) => {
+  try {
+    const empresas = await pool.query(
+      `SELECT id, nome, slug, telefone, email, horario, aberta, tipo, categoria, logo_url, banner_url, link_cardapio
+       FROM empresas
+       ORDER BY id DESC`
+    );
+
+    res.json({ empresas: empresas.rows });
+  } catch (err) {
+    console.error('ERRO GET /admin/empresas:', err);
+    res.status(500).json({
+      erro: 'Erro ao buscar empresas',
+      detalhe: err.message
+    });
+  }
+});
+
 /* CRIAR EMPRESA */
 app.post('/admin/empresas', async (req, res) => {
   try {
-    const { nome, slug, telefone, email, senha, horario, tipo } = req.body;
+    const {
+      nome,
+      slug,
+      telefone,
+      email,
+      senha,
+      horario,
+      tipo,
+      categoria,
+      logo_url,
+      banner_url
+    } = req.body;
+
+    const link_cardapio = `https://delivery-saas-self.vercel.app/loja/${slug}`;
 
     const result = await pool.query(
-      `INSERT INTO empresas (nome, slug, telefone, email, senha, horario, aberta, tipo)
-       VALUES ($1, $2, $3, $4, $5, $6, true, $7)
-       RETURNING id, nome, slug, telefone, email, horario, aberta, tipo`,
+      `INSERT INTO empresas (
+        nome, slug, telefone, email, senha, horario, aberta, tipo, categoria, logo_url, banner_url, link_cardapio
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, true, $7, $8, $9, $10, $11)
+      RETURNING id, nome, slug, telefone, email, horario, aberta, tipo, categoria, logo_url, banner_url, link_cardapio`,
       [
         nome,
         slug,
@@ -77,7 +111,11 @@ app.post('/admin/empresas', async (req, res) => {
         email,
         senha,
         horario || '06:00 às 22:00',
-        tipo || 'loja'
+        tipo || 'loja',
+        categoria || 'Geral',
+        logo_url || null,
+        banner_url || null,
+        link_cardapio
       ]
     );
 
@@ -97,7 +135,9 @@ app.get('/produtos/:slug', async (req, res) => {
     const { slug } = req.params;
 
     const empresa = await pool.query(
-      'SELECT id, nome, telefone FROM empresas WHERE slug = $1',
+      `SELECT id, nome, telefone, banner_url, logo_url, categoria, horario, aberta
+       FROM empresas
+       WHERE slug = $1`,
       [slug]
     );
 
@@ -106,7 +146,7 @@ app.get('/produtos/:slug', async (req, res) => {
     }
 
     const produtos = await pool.query(
-      `SELECT id, nome, preco, categoria, ativo
+      `SELECT id, nome, preco, categoria, ativo, imagem_url
        FROM produtos
        WHERE empresa_id = $1
        AND (ativo = true OR ativo IS NULL)
@@ -196,7 +236,7 @@ Total: R$ ${Number(total).toFixed(2)}`;
 app.post('/admin/produtos/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
-    const { nome, preco, categoria, ativo } = req.body;
+    const { nome, preco, categoria, ativo, imagem_url } = req.body;
 
     const empresa = await pool.query(
       'SELECT id FROM empresas WHERE slug = $1',
@@ -208,10 +248,10 @@ app.post('/admin/produtos/:slug', async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO produtos (empresa_id, nome, preco, categoria, ativo)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO produtos (empresa_id, nome, preco, categoria, ativo, imagem_url)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [empresa.rows[0].id, nome, preco, categoria || 'Geral', ativo ?? true]
+      [empresa.rows[0].id, nome, preco, categoria || 'Geral', ativo ?? true, imagem_url || null]
     );
 
     res.json(result.rows[0]);
@@ -227,14 +267,14 @@ app.post('/admin/produtos/:slug', async (req, res) => {
 app.put('/admin/produtos/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, preco, categoria, ativo } = req.body;
+    const { nome, preco, categoria, ativo, imagem_url } = req.body;
 
     const result = await pool.query(
       `UPDATE produtos
-       SET nome = $1, preco = $2, categoria = $3, ativo = $4
-       WHERE id = $5
+       SET nome = $1, preco = $2, categoria = $3, ativo = $4, imagem_url = $5
+       WHERE id = $6
        RETURNING *`,
-      [nome, preco, categoria || 'Geral', ativo ?? true, id]
+      [nome, preco, categoria || 'Geral', ativo ?? true, imagem_url || null, id]
     );
 
     if (result.rows.length === 0) {
