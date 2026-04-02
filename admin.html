@@ -1,127 +1,568 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Painel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Estabelecimento</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f5f7fb; color: #1f2937; }
 
-<style>
-body { font-family: Arial; margin: 0; display: flex; }
+    .layout { display: flex; min-height: 100vh; }
 
-.menu {
-  width: 200px;
-  background: #0d2b4d;
-  color: white;
-  padding: 10px;
-}
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #0f2b66, #081f52);
+      color: white;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
 
-.menu button {
-  width: 100%;
-  margin: 5px 0;
-  padding: 10px;
-  border: none;
-  background: #1c4d80;
-  color: white;
-  cursor: pointer;
-}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
 
-.menu button:hover {
-  background: #ff7a00;
-}
+    .brand-logo {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 24px;
+      color: white;
+    }
 
-.conteudo {
-  flex: 1;
-  padding: 20px;
-}
-</style>
+    .brand-title { font-size: 18px; font-weight: bold; }
+    .brand-subtitle { font-size: 14px; opacity: 0.9; }
 
+    .store-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 16px;
+      line-height: 1.6;
+    }
+
+    .store-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .menu button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      text-align: left;
+      background: rgba(255,255,255,0.02);
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: 0.2s;
+    }
+
+    .menu button.active {
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      border: none;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar-bottom button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    .btn-secondary { background: #6b8ecf; }
+    .btn-primary { background: linear-gradient(135deg, #ff4d6d, #ff7a18); }
+
+    .content { flex: 1; padding: 26px; }
+
+    .hero {
+      background: white;
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      margin-bottom: 22px;
+    }
+
+    .hero h1 { margin: 0 0 6px; font-size: 24px; }
+    .hero p { margin: 0; color: #6b7280; }
+
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 10px 16px;
+      border: 1px solid #f7caa8;
+      border-radius: 16px;
+      color: #a85a20;
+      background: #fff7f1;
+      font-weight: bold;
+    }
+
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-title {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      margin-bottom: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+
+    .pedido-item, .produto-item, .categoria-item {
+      padding: 14px 0;
+      border-bottom: 1px solid #eceff4;
+    }
+
+    .pedido-item:last-child,
+    .produto-item:last-child,
+    .categoria-item:last-child {
+      border-bottom: none;
+    }
+
+    .pedido-top, .produto-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .pedido-cliente, .produto-nome {
+      font-weight: bold;
+    }
+
+    .pedido-status {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .pedido-meta, .produto-meta, .categoria-meta {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .resumo-linha {
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .resumo-linha strong {
+      display: inline-block;
+      min-width: 90px;
+    }
+
+    .empty {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; }
+    }
+
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">PJ</div>
+        <div>
+          <div class="brand-title">PediJá</div>
+          <div class="brand-subtitle">Painel do estabelecimento</div>
+        </div>
+      </div>
 
-<div class="menu">
-  <button onclick="abrir('dashboard')">Dashboard</button>
-  <button onclick="abrir('produtos')">Produtos</button>
-  <button onclick="abrir('categorias')">Categorias</button>
-  <button onclick="abrir('pedidos')">Pedidos</button>
-  <button onclick="abrir('loja')">Minha loja</button>
-</div>
+      <div class="store-card">
+        <strong id="sidebar-nome">Carregando loja...</strong>
+        <div id="sidebar-categoria">Aguarde...</div>
+        <div id="sidebar-telefone"></div>
+        <div id="sidebar-horario"></div>
+      </div>
 
-<div class="conteudo" id="conteudo">
-  <h2>Dashboard</h2>
-</div>
+      <div class="menu">
+        <button class="menu-btn active" onclick="trocarTab('dashboard', this)">Dashboard</button>
+        <button class="menu-btn" onclick="trocarTab('produtos', this)">Produtos</button>
+        <button class="menu-btn" onclick="trocarTab('categorias', this)">Categorias</button>
+        <button class="menu-btn" onclick="trocarTab('pedidos', this)">Pedidos</button>
+        <button class="menu-btn" onclick="trocarTab('loja', this)">Minha loja</button>
+      </div>
 
-<script>
+      <div class="sidebar-bottom">
+        <button class="btn-secondary" onclick="recarregarTudo()">Atualizar painel</button>
+        <button class="btn-primary" onclick="sair()">Sair</button>
+      </div>
+    </aside>
 
-const API = "https://delivery-saas-production-caba.up.railway.app";
+    <main class="content">
+      <section class="hero">
+        <h1>Painel do Estabelecimento</h1>
+        <p>Gerencie produtos, pedidos e sua loja em um só lugar.</p>
+        <div class="badge" id="hero-loja">Loja logada: carregando...</div>
+      </section>
 
-function abrir(tela) {
+      <!-- DASHBOARD -->
+      <section id="tab-dashboard" class="tab active">
+        <section class="stats">
+          <div class="stat">
+            <div class="stat-title">Produtos</div>
+            <div class="stat-value" id="stat-produtos">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Pedidos</div>
+            <div class="stat-value" id="stat-pedidos">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Pendentes</div>
+            <div class="stat-value" id="stat-pendentes">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Faturamento</div>
+            <div class="stat-value" id="stat-faturamento">R$ 0,00</div>
+          </div>
+        </section>
 
-  if (tela === "dashboard") {
-    document.getElementById("conteudo").innerHTML = `
-      <h2>Dashboard</h2>
-      <p>Bem vindo ao painel</p>
-    `;
-  }
+        <section class="grid">
+          <div class="card">
+            <h2>Últimos pedidos</h2>
+            <div id="lista-pedidos-dashboard">Carregando...</div>
+          </div>
 
-  if (tela === "produtos") {
-    carregarProdutos();
-  }
+          <div class="card">
+            <h2>Resumo da loja</h2>
+            <div id="resumo-loja-dashboard">Carregando...</div>
+          </div>
+        </section>
+      </section>
 
-  if (tela === "categorias") {
-    document.getElementById("conteudo").innerHTML = `
-      <h2>Categorias</h2>
-      <p>Em breve</p>
-    `;
-  }
+      <!-- PRODUTOS -->
+      <section id="tab-produtos" class="tab">
+        <div class="card">
+          <h2>Produtos</h2>
+          <div id="lista-produtos">Carregando...</div>
+        </div>
+      </section>
 
-  if (tela === "pedidos") {
-    carregarPedidos();
-  }
+      <!-- CATEGORIAS -->
+      <section id="tab-categorias" class="tab">
+        <div class="card">
+          <h2>Categorias</h2>
+          <div id="lista-categorias">Carregando...</div>
+        </div>
+      </section>
 
-  if (tela === "loja") {
-    carregarLoja();
-  }
-}
+      <!-- PEDIDOS -->
+      <section id="tab-pedidos" class="tab">
+        <div class="card">
+          <h2>Todos os pedidos</h2>
+          <div id="lista-pedidos-completa">Carregando...</div>
+        </div>
+      </section>
 
-// PRODUTOS
-async function carregarProdutos() {
-  const res = await fetch(API + "/produtos");
-  const dados = await res.json();
+      <!-- LOJA -->
+      <section id="tab-loja" class="tab">
+        <div class="card">
+          <h2>Minha loja</h2>
+          <div id="resumo-loja-completo">Carregando...</div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-  let html = "<h2>Produtos</h2>";
+  <script>
+    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-  dados.forEach(p => {
-    html += `<p>${p.nome} - R$ ${p.preco}</p>`;
-  });
+    if (!usuario) {
+      window.location.href = "/login.html";
+    }
 
-  document.getElementById("conteudo").innerHTML = html;
-}
+    const EMPRESA_ID = usuario.empresa_id;
 
-// PEDIDOS
-async function carregarPedidos() {
-  const res = await fetch(API + "/pedidos");
-  const dados = await res.json();
+    let produtosCache = [];
+    let pedidosCache = [];
+    let categoriasCache = [];
+    let empresaCache = null;
 
-  let html = "<h2>Pedidos</h2>";
+    function formatarMoeda(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
 
-  dados.forEach(p => {
-    html += `<p>Pedido #${p.id} - ${p.nome}</p>`;
-  });
+    function sair() {
+      localStorage.removeItem("usuario");
+      window.location.href = "/login.html";
+    }
 
-  document.getElementById("conteudo").innerHTML = html;
-}
+    function trocarTab(tab, botao) {
+      document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".menu-btn").forEach(el => el.classList.remove("active"));
 
-// LOJA
-async function carregarLoja() {
-  const res = await fetch(API + "/empresa");
-  const dados = await res.json();
+      document.getElementById(`tab-${tab}`).classList.add("active");
+      botao.classList.add("active");
+    }
 
-  document.getElementById("conteudo").innerHTML = `
-    <h2>Minha Loja</h2>
-    <p>${dados.nome}</p>
-  `;
-}
+    async function carregarEmpresa() {
+      const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`);
+      const data = await res.json();
+      empresaCache = data.empresa;
+    }
 
-</script>
+    async function carregarProdutos() {
+      const res = await fetch(`${API_URL}/admin/produtos/${EMPRESA_ID}`);
+      const data = await res.json();
+      produtosCache = data.produtos || [];
+    }
 
+    async function carregarCategorias() {
+      const res = await fetch(`${API_URL}/admin/categorias/${EMPRESA_ID}`);
+      const data = await res.json();
+      categoriasCache = data.categorias || [];
+    }
+
+    async function carregarPedidos() {
+      const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
+      const data = await res.json();
+      pedidosCache = data.pedidos || [];
+    }
+
+    function renderCabecalho() {
+      const lojaNome = empresaCache?.nome || usuario.empresa_nome || "Sem nome";
+      const categoria = empresaCache?.categoria || usuario.categoria || "Sem categoria";
+      const telefone = empresaCache?.telefone || usuario.telefone || "";
+      const horario = empresaCache?.horario || usuario.horario || "";
+
+      document.getElementById("sidebar-nome").textContent = lojaNome;
+      document.getElementById("sidebar-categoria").textContent = categoria;
+      document.getElementById("sidebar-telefone").textContent = telefone;
+      document.getElementById("sidebar-horario").textContent = horario;
+      document.getElementById("hero-loja").textContent = `Loja logada: ${lojaNome}`;
+    }
+
+    function renderDashboard() {
+      document.getElementById("stat-produtos").textContent = produtosCache.length;
+      document.getElementById("stat-pedidos").textContent = pedidosCache.length;
+
+      const pendentes = pedidosCache.filter(
+        p => !["entregue", "cancelado"].includes((p.status || "").toLowerCase())
+      ).length;
+
+      document.getElementById("stat-pendentes").textContent = pendentes;
+
+      const faturamento = pedidosCache.reduce((soma, p) => soma + Number(p.total || 0), 0);
+      document.getElementById("stat-faturamento").textContent = formatarMoeda(faturamento);
+
+      const dashboardPedidos = document.getElementById("lista-pedidos-dashboard");
+
+      if (!pedidosCache.length) {
+        dashboardPedidos.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
+      } else {
+        dashboardPedidos.innerHTML = pedidosCache.slice(0, 8).map(pedido => `
+          <div class="pedido-item">
+            <div class="pedido-top">
+              <div class="pedido-cliente">Pedido #${pedido.id} - ${pedido.cliente_nome || "Sem nome"}</div>
+              <div class="pedido-status">${pedido.status || "novo"}</div>
+            </div>
+            <div class="pedido-meta">
+              WhatsApp: ${pedido.cliente_whatsapp || "-"}<br>
+              Endereço: ${pedido.endereco || "-"}<br>
+              Total: ${formatarMoeda(pedido.total || 0)}
+            </div>
+          </div>
+        `).join("");
+      }
+
+      const resumo = empresaCache || {};
+      document.getElementById("resumo-loja-dashboard").innerHTML = `
+        <div class="resumo-linha"><strong>Nome:</strong> ${resumo.nome || usuario.empresa_nome || "-"}</div>
+        <div class="resumo-linha"><strong>Email:</strong> ${resumo.email || usuario.email || "-"}</div>
+        <div class="resumo-linha"><strong>Telefone:</strong> ${resumo.telefone || usuario.telefone || "-"}</div>
+        <div class="resumo-linha"><strong>Categoria:</strong> ${resumo.categoria || usuario.categoria || "-"}</div>
+        <div class="resumo-linha"><strong>Horário:</strong> ${resumo.horario || usuario.horario || "-"}</div>
+        <div class="resumo-linha"><strong>Slug:</strong> ${resumo.slug || usuario.slug || "-"}</div>
+      `;
+    }
+
+    function renderProdutos() {
+      const el = document.getElementById("lista-produtos");
+
+      if (!produtosCache.length) {
+        el.innerHTML = `<div class="empty">Nenhum produto cadastrado.</div>`;
+        return;
+      }
+
+      el.innerHTML = produtosCache.map(produto => `
+        <div class="produto-item">
+          <div class="produto-top">
+            <div class="produto-nome">${produto.nome || "Sem nome"}</div>
+            <div class="pedido-status">${produto.ativo ? "ativo" : "inativo"}</div>
+          </div>
+          <div class="produto-meta">
+            Categoria: ${produto.categoria_nome || "Sem categoria"}<br>
+            Preço: ${formatarMoeda(produto.preco || 0)}<br>
+            Descrição: ${produto.descricao || "-"}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderCategorias() {
+      const el = document.getElementById("lista-categorias");
+
+      if (!categoriasCache.length) {
+        el.innerHTML = `<div class="empty">Nenhuma categoria cadastrada.</div>`;
+        return;
+      }
+
+      el.innerHTML = categoriasCache.map(cat => `
+        <div class="categoria-item">
+          <div class="produto-nome">${cat.nome || "Sem nome"}</div>
+          <div class="categoria-meta">ID: ${cat.id}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderPedidosCompleto() {
+      const el = document.getElementById("lista-pedidos-completa");
+
+      if (!pedidosCache.length) {
+        el.innerHTML = `<div class="empty">Nenhum pedido recebido.</div>`;
+        return;
+      }
+
+      el.innerHTML = pedidosCache.map(pedido => `
+        <div class="pedido-item">
+          <div class="pedido-top">
+            <div class="pedido-cliente">Pedido #${pedido.id} - ${pedido.cliente_nome || "Sem nome"}</div>
+            <div class="pedido-status">${pedido.status || "novo"}</div>
+          </div>
+          <div class="pedido-meta">
+            WhatsApp: ${pedido.cliente_whatsapp || "-"}<br>
+            Endereço: ${pedido.endereco || "-"}<br>
+            Total: ${formatarMoeda(pedido.total || 0)}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderMinhaLoja() {
+      const resumo = empresaCache || {};
+      document.getElementById("resumo-loja-completo").innerHTML = `
+        <div class="resumo-linha"><strong>Nome:</strong> ${resumo.nome || usuario.empresa_nome || "-"}</div>
+        <div class="resumo-linha"><strong>Email:</strong> ${resumo.email || usuario.email || "-"}</div>
+        <div class="resumo-linha"><strong>Telefone:</strong> ${resumo.telefone || usuario.telefone || "-"}</div>
+        <div class="resumo-linha"><strong>Categoria:</strong> ${resumo.categoria || usuario.categoria || "-"}</div>
+        <div class="resumo-linha"><strong>Horário:</strong> ${resumo.horario || usuario.horario || "-"}</div>
+        <div class="resumo-linha"><strong>Slug:</strong> ${resumo.slug || usuario.slug || "-"}</div>
+        <div class="resumo-linha"><strong>Logo URL:</strong> ${resumo.logo_url || "-"}</div>
+        <div class="resumo-linha"><strong>Banner URL:</strong> ${resumo.banner_url || "-"}</div>
+      `;
+    }
+
+    async function recarregarTudo() {
+      try {
+        await Promise.all([
+          carregarEmpresa(),
+          carregarProdutos(),
+          carregarCategorias(),
+          carregarPedidos()
+        ]);
+
+        renderCabecalho();
+        renderDashboard();
+        renderProdutos();
+        renderCategorias();
+        renderPedidosCompleto();
+        renderMinhaLoja();
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao atualizar painel.");
+      }
+    }
+
+    recarregarTudo();
+  </script>
 </body>
 </html>
