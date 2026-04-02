@@ -5,10 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel do Estabelecimento</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #f5f7fb; color: #1f2937; }
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-    .layout { display: flex; min-height: 100vh; }
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
     .sidebar {
       width: 280px;
@@ -40,8 +51,15 @@
       color: white;
     }
 
-    .brand-title { font-size: 18px; font-weight: bold; }
-    .brand-subtitle { font-size: 14px; opacity: 0.9; }
+    .brand-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .brand-subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
 
     .store-card {
       background: rgba(255,255,255,0.08);
@@ -64,7 +82,7 @@
       margin-top: 6px;
     }
 
-    .menu button {
+    .menu-btn {
       width: 100%;
       border: none;
       border-radius: 14px;
@@ -78,7 +96,7 @@
       transition: 0.2s;
     }
 
-    .menu button.active {
+    .menu-btn.active {
       background: linear-gradient(135deg, #ff7a18, #ff5722);
       border: none;
     }
@@ -101,10 +119,18 @@
       color: white;
     }
 
-    .btn-secondary { background: #6b8ecf; }
-    .btn-primary { background: linear-gradient(135deg, #ff4d6d, #ff7a18); }
+    .btn-secondary {
+      background: #6b8ecf;
+    }
 
-    .content { flex: 1; padding: 26px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4d6d, #ff7a18);
+    }
+
+    .content {
+      flex: 1;
+      padding: 26px;
+    }
 
     .hero {
       background: white;
@@ -114,8 +140,15 @@
       margin-bottom: 22px;
     }
 
-    .hero h1 { margin: 0 0 6px; font-size: 24px; }
-    .hero p { margin: 0; color: #6b7280; }
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #6b7280;
+    }
 
     .badge {
       display: inline-block;
@@ -128,8 +161,13 @@
       font-weight: bold;
     }
 
-    .tab { display: none; }
-    .tab.active { display: block; }
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+    }
 
     .stats {
       display: grid;
@@ -175,7 +213,9 @@
       font-size: 18px;
     }
 
-    .pedido-item, .produto-item, .categoria-item {
+    .pedido-item,
+    .produto-item,
+    .categoria-item {
       padding: 14px 0;
       border-bottom: 1px solid #eceff4;
     }
@@ -186,14 +226,17 @@
       border-bottom: none;
     }
 
-    .pedido-top, .produto-top {
+    .pedido-top,
+    .produto-top {
       display: flex;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 6px;
+      align-items: center;
     }
 
-    .pedido-cliente, .produto-nome {
+    .pedido-cliente,
+    .produto-nome {
       font-weight: bold;
     }
 
@@ -204,9 +247,12 @@
       font-weight: bold;
       background: #eef2ff;
       color: #4338ca;
+      display: inline-block;
     }
 
-    .pedido-meta, .produto-meta, .categoria-meta {
+    .pedido-meta,
+    .produto-meta,
+    .categoria-meta {
       color: #6b7280;
       font-size: 14px;
       line-height: 1.5;
@@ -227,18 +273,145 @@
       font-size: 14px;
     }
 
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dbe2ea;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-grid textarea {
+      min-height: 90px;
+      resize: vertical;
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, #ff7a18, #ff5722);
+      color: white;
+    }
+
+    .light-btn {
+      background: #eef2ff;
+      color: #1f2937;
+    }
+
+    .danger-btn {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .small-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .produto-linha {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .produto-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #f1f5f9;
+      border: 1px solid #e5e7eb;
+    }
+
+    .status-select {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #dbe2ea;
+    }
+
+    .link-box {
+      word-break: break-all;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .success-msg,
+    .error-msg {
+      margin-top: 12px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .success-msg {
+      color: #166534;
+    }
+
+    .error-msg {
+      color: #b91c1c;
+    }
+
     @media (max-width: 1100px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .grid { grid-template-columns: 1fr; }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .produto-linha {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 900px) {
-      .layout { flex-direction: column; }
-      .sidebar { width: 100%; }
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
     }
 
     @media (max-width: 600px) {
-      .stats { grid-template-columns: 1fr; }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -281,7 +454,6 @@
         <div class="badge" id="hero-loja">Loja logada: carregando...</div>
       </section>
 
-      <!-- DASHBOARD -->
       <section id="tab-dashboard" class="tab active">
         <section class="stats">
           <div class="stat">
@@ -315,23 +487,47 @@
         </section>
       </section>
 
-      <!-- PRODUTOS -->
       <section id="tab-produtos" class="tab">
         <div class="card">
-          <h2>Produtos</h2>
+          <h2>Novo produto</h2>
+          <div class="form-grid">
+            <input id="produto-nome" type="text" placeholder="Nome do produto">
+            <input id="produto-preco" type="number" step="0.01" placeholder="Preço">
+            <input id="produto-imagem" type="text" placeholder="URL da imagem">
+            <select id="produto-categoria"></select>
+            <textarea id="produto-descricao" placeholder="Descrição do produto"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="action-btn save-btn" onclick="salvarProduto()">Salvar produto</button>
+            <button class="action-btn light-btn" onclick="limparFormularioProduto()">Limpar</button>
+          </div>
+          <div id="produto-msg"></div>
+        </div>
+
+        <div class="card">
+          <h2>Produtos cadastrados</h2>
           <div id="lista-produtos">Carregando...</div>
         </div>
       </section>
 
-      <!-- CATEGORIAS -->
       <section id="tab-categorias" class="tab">
         <div class="card">
-          <h2>Categorias</h2>
+          <h2>Nova categoria</h2>
+          <div class="form-grid">
+            <input id="categoria-nome" type="text" placeholder="Nome da categoria">
+          </div>
+          <div class="form-actions">
+            <button class="action-btn save-btn" onclick="salvarCategoria()">Salvar categoria</button>
+          </div>
+          <div id="categoria-msg"></div>
+        </div>
+
+        <div class="card">
+          <h2>Categorias cadastradas</h2>
           <div id="lista-categorias">Carregando...</div>
         </div>
       </section>
 
-      <!-- PEDIDOS -->
       <section id="tab-pedidos" class="tab">
         <div class="card">
           <h2>Todos os pedidos</h2>
@@ -339,11 +535,29 @@
         </div>
       </section>
 
-      <!-- LOJA -->
       <section id="tab-loja" class="tab">
         <div class="card">
           <h2>Minha loja</h2>
-          <div id="resumo-loja-completo">Carregando...</div>
+          <div class="form-grid">
+            <input id="loja-nome" type="text" placeholder="Nome da loja">
+            <input id="loja-telefone" type="text" placeholder="Telefone">
+            <input id="loja-categoria" type="text" placeholder="Categoria">
+            <input id="loja-horario" type="text" placeholder="Horário">
+            <input id="loja-email" type="email" placeholder="Email">
+            <select id="loja-aberta">
+              <option value="true">Aberta</option>
+              <option value="false">Fechada</option>
+            </select>
+            <input id="loja-logo" type="text" placeholder="URL da logo">
+            <input id="loja-banner" type="text" placeholder="URL do banner">
+          </div>
+
+          <div class="form-actions">
+            <button class="action-btn save-btn" onclick="salvarLoja()">Salvar loja</button>
+          </div>
+
+          <div class="link-box" id="link-cardapio-box">Carregando link do cardápio...</div>
+          <div id="loja-msg"></div>
         </div>
       </section>
     </main>
@@ -379,7 +593,6 @@
     function trocarTab(tab, botao) {
       document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
       document.querySelectorAll(".menu-btn").forEach(el => el.classList.remove("active"));
-
       document.getElementById(`tab-${tab}`).classList.add("active");
       botao.classList.add("active");
     }
@@ -387,24 +600,28 @@
     async function carregarEmpresa() {
       const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.erro || "Erro ao buscar empresa");
       empresaCache = data.empresa;
     }
 
     async function carregarProdutos() {
       const res = await fetch(`${API_URL}/admin/produtos/${EMPRESA_ID}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.erro || "Erro ao buscar produtos");
       produtosCache = data.produtos || [];
     }
 
     async function carregarCategorias() {
       const res = await fetch(`${API_URL}/admin/categorias/${EMPRESA_ID}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.erro || "Erro ao buscar categorias");
       categoriasCache = data.categorias || [];
     }
 
     async function carregarPedidos() {
       const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
       const data = await res.json();
+      if (!res.ok) throw new Error(data.erro || "Erro ao buscar pedidos");
       pedidosCache = data.pedidos || [];
     }
 
@@ -428,7 +645,6 @@
       const pendentes = pedidosCache.filter(
         p => !["entregue", "cancelado"].includes((p.status || "").toLowerCase())
       ).length;
-
       document.getElementById("stat-pendentes").textContent = pendentes;
 
       const faturamento = pedidosCache.reduce((soma, p) => soma + Number(p.total || 0), 0);
@@ -454,18 +670,25 @@
         `).join("");
       }
 
-      const resumo = empresaCache || {};
       document.getElementById("resumo-loja-dashboard").innerHTML = `
-        <div class="resumo-linha"><strong>Nome:</strong> ${resumo.nome || usuario.empresa_nome || "-"}</div>
-        <div class="resumo-linha"><strong>Email:</strong> ${resumo.email || usuario.email || "-"}</div>
-        <div class="resumo-linha"><strong>Telefone:</strong> ${resumo.telefone || usuario.telefone || "-"}</div>
-        <div class="resumo-linha"><strong>Categoria:</strong> ${resumo.categoria || usuario.categoria || "-"}</div>
-        <div class="resumo-linha"><strong>Horário:</strong> ${resumo.horario || usuario.horario || "-"}</div>
-        <div class="resumo-linha"><strong>Slug:</strong> ${resumo.slug || usuario.slug || "-"}</div>
+        <div class="resumo-linha"><strong>Nome:</strong> ${empresaCache?.nome || "-"}</div>
+        <div class="resumo-linha"><strong>Email:</strong> ${empresaCache?.email || "-"}</div>
+        <div class="resumo-linha"><strong>Telefone:</strong> ${empresaCache?.telefone || "-"}</div>
+        <div class="resumo-linha"><strong>Categoria:</strong> ${empresaCache?.categoria || "-"}</div>
+        <div class="resumo-linha"><strong>Horário:</strong> ${empresaCache?.horario || "-"}</div>
+        <div class="resumo-linha"><strong>Slug:</strong> ${empresaCache?.slug || "-"}</div>
       `;
     }
 
+    function preencherSelectCategorias() {
+      const select = document.getElementById("produto-categoria");
+      select.innerHTML = `<option value="">Sem categoria</option>` +
+        categoriasCache.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join("");
+    }
+
     function renderProdutos() {
+      preencherSelectCategorias();
+
       const el = document.getElementById("lista-produtos");
 
       if (!produtosCache.length) {
@@ -475,14 +698,22 @@
 
       el.innerHTML = produtosCache.map(produto => `
         <div class="produto-item">
-          <div class="produto-top">
-            <div class="produto-nome">${produto.nome || "Sem nome"}</div>
-            <div class="pedido-status">${produto.ativo ? "ativo" : "inativo"}</div>
-          </div>
-          <div class="produto-meta">
-            Categoria: ${produto.categoria_nome || "Sem categoria"}<br>
-            Preço: ${formatarMoeda(produto.preco || 0)}<br>
-            Descrição: ${produto.descricao || "-"}
+          <div class="produto-linha">
+            <img class="produto-thumb" src="${produto.imagem_url || "https://via.placeholder.com/72?text=Foto"}" alt="">
+            <div>
+              <div class="produto-top">
+                <div class="produto-nome">${produto.nome || "Sem nome"}</div>
+                <div class="pedido-status">${produto.ativo ? "ativo" : "inativo"}</div>
+              </div>
+              <div class="produto-meta">
+                Categoria: ${produto.categoria_nome || "Sem categoria"}<br>
+                Preço: ${formatarMoeda(produto.preco || 0)}<br>
+                Descrição: ${produto.descricao || "-"}
+              </div>
+            </div>
+            <div class="small-actions">
+              <button class="action-btn danger-btn" onclick="excluirProduto(${produto.id})">Excluir</button>
+            </div>
           </div>
         </div>
       `).join("");
@@ -504,6 +735,34 @@
       `).join("");
     }
 
+    function abrirWhats(numero, mensagem) {
+      const num = String(numero || "").replace(/\D/g, "");
+      if (!num) {
+        alert("Pedido sem WhatsApp do cliente.");
+        return;
+      }
+      window.open(`https://wa.me/55${num}?text=${encodeURIComponent(mensagem)}`, "_blank");
+    }
+
+    async function atualizarStatusPedido(id, status) {
+      try {
+        const res = await fetch(`${API_URL}/admin/pedidos/${id}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao atualizar status");
+
+        await carregarPedidos();
+        renderDashboard();
+        renderPedidosCompleto();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
     function renderPedidosCompleto() {
       const el = document.getElementById("lista-pedidos-completa");
 
@@ -523,22 +782,160 @@
             Endereço: ${pedido.endereco || "-"}<br>
             Total: ${formatarMoeda(pedido.total || 0)}
           </div>
+          <div class="small-actions">
+            <select class="status-select" onchange="atualizarStatusPedido(${pedido.id}, this.value)">
+              <option value="">Alterar status</option>
+              <option value="novo">novo</option>
+              <option value="aceito">aceito</option>
+              <option value="saiu para entrega">saiu para entrega</option>
+              <option value="entregue">entregue</option>
+              <option value="cancelado">cancelado</option>
+            </select>
+            <button class="action-btn light-btn" onclick="abrirWhats('${pedido.cliente_whatsapp || ""}', 'Olá, seu pedido #${pedido.id} está com status: ${pedido.status || "novo"}')">WhatsApp</button>
+          </div>
         </div>
       `).join("");
     }
 
     function renderMinhaLoja() {
-      const resumo = empresaCache || {};
-      document.getElementById("resumo-loja-completo").innerHTML = `
-        <div class="resumo-linha"><strong>Nome:</strong> ${resumo.nome || usuario.empresa_nome || "-"}</div>
-        <div class="resumo-linha"><strong>Email:</strong> ${resumo.email || usuario.email || "-"}</div>
-        <div class="resumo-linha"><strong>Telefone:</strong> ${resumo.telefone || usuario.telefone || "-"}</div>
-        <div class="resumo-linha"><strong>Categoria:</strong> ${resumo.categoria || usuario.categoria || "-"}</div>
-        <div class="resumo-linha"><strong>Horário:</strong> ${resumo.horario || usuario.horario || "-"}</div>
-        <div class="resumo-linha"><strong>Slug:</strong> ${resumo.slug || usuario.slug || "-"}</div>
-        <div class="resumo-linha"><strong>Logo URL:</strong> ${resumo.logo_url || "-"}</div>
-        <div class="resumo-linha"><strong>Banner URL:</strong> ${resumo.banner_url || "-"}</div>
+      document.getElementById("loja-nome").value = empresaCache?.nome || "";
+      document.getElementById("loja-telefone").value = empresaCache?.telefone || "";
+      document.getElementById("loja-categoria").value = empresaCache?.categoria || "";
+      document.getElementById("loja-horario").value = empresaCache?.horario || "";
+      document.getElementById("loja-email").value = empresaCache?.email || "";
+      document.getElementById("loja-aberta").value = String(empresaCache?.aberta);
+      document.getElementById("loja-logo").value = empresaCache?.logo_url || "";
+      document.getElementById("loja-banner").value = empresaCache?.banner_url || "";
+
+      document.getElementById("link-cardapio-box").innerHTML = `
+        <strong>Link do cardápio:</strong><br>
+        ${API_URL}/produtos/${empresaCache?.slug || usuario.slug || ""}
       `;
+    }
+
+    async function salvarProduto() {
+      const nome = document.getElementById("produto-nome").value.trim();
+      const preco = document.getElementById("produto-preco").value;
+      const imagem_url = document.getElementById("produto-imagem").value.trim();
+      const categoria_id = document.getElementById("produto-categoria").value;
+      const descricao = document.getElementById("produto-descricao").value.trim();
+      const msg = document.getElementById("produto-msg");
+
+      msg.innerHTML = "";
+
+      try {
+        const res = await fetch(`${API_URL}/admin/produtos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            descricao,
+            preco,
+            imagem_url,
+            empresa_id: EMPRESA_ID,
+            categoria_id: categoria_id || null
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao salvar produto");
+
+        msg.innerHTML = `<div class="success-msg">Produto salvo com sucesso.</div>`;
+        limparFormularioProduto();
+        await carregarProdutos();
+        renderDashboard();
+        renderProdutos();
+      } catch (error) {
+        msg.innerHTML = `<div class="error-msg">${error.message}</div>`;
+      }
+    }
+
+    function limparFormularioProduto() {
+      document.getElementById("produto-nome").value = "";
+      document.getElementById("produto-preco").value = "";
+      document.getElementById("produto-imagem").value = "";
+      document.getElementById("produto-categoria").value = "";
+      document.getElementById("produto-descricao").value = "";
+    }
+
+    async function excluirProduto(id) {
+      if (!confirm("Excluir este produto?")) return;
+
+      try {
+        const res = await fetch(`${API_URL}/admin/produtos/${id}`, {
+          method: "DELETE"
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao excluir produto");
+
+        await carregarProdutos();
+        renderDashboard();
+        renderProdutos();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function salvarCategoria() {
+      const nome = document.getElementById("categoria-nome").value.trim();
+      const msg = document.getElementById("categoria-msg");
+      msg.innerHTML = "";
+
+      try {
+        const res = await fetch(`${API_URL}/admin/categorias`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            empresa_id: EMPRESA_ID
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao salvar categoria");
+
+        document.getElementById("categoria-nome").value = "";
+        msg.innerHTML = `<div class="success-msg">Categoria salva com sucesso.</div>`;
+        await carregarCategorias();
+        renderCategorias();
+        preencherSelectCategorias();
+      } catch (error) {
+        msg.innerHTML = `<div class="error-msg">${error.message}</div>`;
+      }
+    }
+
+    async function salvarLoja() {
+      const msg = document.getElementById("loja-msg");
+      msg.innerHTML = "";
+
+      try {
+        const res = await fetch(`${API_URL}/admin/empresa/${EMPRESA_ID}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: document.getElementById("loja-nome").value.trim(),
+            telefone: document.getElementById("loja-telefone").value.trim(),
+            categoria: document.getElementById("loja-categoria").value.trim(),
+            horario: document.getElementById("loja-horario").value.trim(),
+            email: document.getElementById("loja-email").value.trim(),
+            aberta: document.getElementById("loja-aberta").value === "true",
+            logo_url: document.getElementById("loja-logo").value.trim(),
+            banner_url: document.getElementById("loja-banner").value.trim()
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao salvar loja");
+
+        msg.innerHTML = `<div class="success-msg">Loja atualizada com sucesso.</div>`;
+        await carregarEmpresa();
+        renderCabecalho();
+        renderDashboard();
+        renderMinhaLoja();
+      } catch (error) {
+        msg.innerHTML = `<div class="error-msg">${error.message}</div>`;
+      }
     }
 
     async function recarregarTudo() {
