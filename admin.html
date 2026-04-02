@@ -809,7 +809,7 @@
 
       document.getElementById("link-cardapio-box").innerHTML = `
         <strong>Link do cardápio:</strong><br>
-        ${API_URL}/produtos/${empresaCache?.slug || usuario.slug || ""}
+        ${API_URL}/loja/${empresaCache?.slug || usuario.slug || ""}
       `;
     }
 
