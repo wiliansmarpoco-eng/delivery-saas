@@ -1,290 +1,127 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel do Estabelecimento</title>
-  <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #f5f7fb; color: #1f2937; }
-    .layout { display: flex; min-height: 100vh; }
-    .sidebar {
-      width: 280px;
-      background: linear-gradient(180deg, #0f2b66, #081f52);
-      color: white;
-      padding: 22px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-    .brand-logo {
-      width: 58px; height: 58px; border-radius: 18px;
-      background: linear-gradient(135deg, #ff7a18, #ff5722);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 24px;
-    }
-    .brand-title { font-size: 18px; font-weight: bold; }
-    .brand-subtitle { font-size: 14px; opacity: 0.9; }
-    .store-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 16px;
-      line-height: 1.6;
-    }
-    .store-card strong { display: block; margin-bottom: 6px; font-size: 15px; }
-    .menu { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
-    .menu button {
-      width: 100%; border: none; border-radius: 14px; padding: 14px 16px;
-      text-align: left; background: rgba(255,255,255,0.02);
-      color: white; cursor: pointer; font-size: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .menu button.active {
-      background: linear-gradient(135deg, #ff7a18, #ff5722);
-      border: none;
-    }
-    .sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-    .sidebar-bottom button {
-      width: 100%; border: none; border-radius: 14px;
-      padding: 14px; font-size: 15px; cursor: pointer; font-weight: bold;
-    }
-    .btn-secondary { background: #6b8ecf; color: white; }
-    .btn-primary { background: linear-gradient(135deg, #ff4d6d, #ff7a18); color: white; }
-    .content { flex: 1; padding: 26px; }
-    .hero {
-      background: white; border-radius: 24px; padding: 26px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05); margin-bottom: 22px;
-    }
-    .hero h1 { margin: 0 0 6px; font-size: 24px; }
-    .hero p { margin: 0; color: #6b7280; }
-    .badge {
-      display: inline-block; margin-top: 14px; padding: 10px 16px;
-      border: 1px solid #f7caa8; border-radius: 16px;
-      color: #a85a20; background: #fff7f1; font-weight: bold;
-    }
-    .stats {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 18px; margin-bottom: 22px;
-    }
-    .stat {
-      background: white; border-radius: 20px; padding: 22px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-    }
-    .stat-title { color: #6b7280; font-size: 14px; margin-bottom: 12px; }
-    .stat-value { font-size: 26px; font-weight: bold; }
-    .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
-    .card {
-      background: white; border-radius: 20px; padding: 22px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-    }
-    .card h2 { margin: 0 0 16px; font-size: 18px; }
-    .pedido-item { padding: 14px 0; border-bottom: 1px solid #eceff4; }
-    .pedido-item:last-child { border-bottom: none; }
-    .pedido-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-    .pedido-cliente { font-weight: bold; }
-    .pedido-status {
-      padding: 6px 10px; border-radius: 999px; font-size: 12px;
-      font-weight: bold; background: #eef2ff; color: #4338ca;
-    }
-    .pedido-meta { color: #6b7280; font-size: 14px; line-height: 1.5; }
-    .resumo-linha { margin-bottom: 14px; line-height: 1.6; }
-    .resumo-linha strong { display: inline-block; min-width: 90px; }
+<meta charset="UTF-8">
+<title>Painel</title>
 
-    @media (max-width: 1100px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 900px) {
-      .layout { flex-direction: column; }
-      .sidebar { width: 100%; }
-    }
-    @media (max-width: 600px) {
-      .stats { grid-template-columns: 1fr; }
-    }
-  </style>
+<style>
+body { font-family: Arial; margin: 0; display: flex; }
+
+.menu {
+  width: 200px;
+  background: #0d2b4d;
+  color: white;
+  padding: 10px;
+}
+
+.menu button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border: none;
+  background: #1c4d80;
+  color: white;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: #ff7a00;
+}
+
+.conteudo {
+  flex: 1;
+  padding: 20px;
+}
+</style>
+
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo">PJ</div>
-        <div>
-          <div class="brand-title">PediJá</div>
-          <div class="brand-subtitle">Painel do estabelecimento</div>
-        </div>
-      </div>
 
-      <div class="store-card">
-        <strong id="sidebar-nome">Carregando loja...</strong>
-        <div id="sidebar-categoria">Aguarde...</div>
-        <div id="sidebar-telefone"></div>
-        <div id="sidebar-horario"></div>
-      </div>
+<div class="menu">
+  <button onclick="abrir('dashboard')">Dashboard</button>
+  <button onclick="abrir('produtos')">Produtos</button>
+  <button onclick="abrir('categorias')">Categorias</button>
+  <button onclick="abrir('pedidos')">Pedidos</button>
+  <button onclick="abrir('loja')">Minha loja</button>
+</div>
 
-      <div class="menu">
-        <button class="active">Dashboard</button>
-        <button>Produtos</button>
-        <button>Categorias</button>
-        <button>Pedidos</button>
-        <button>Minha loja</button>
-      </div>
+<div class="conteudo" id="conteudo">
+  <h2>Dashboard</h2>
+</div>
 
-      <div class="sidebar-bottom">
-        <button class="btn-secondary" onclick="window.location.reload()">Atualizar painel</button>
-        <button class="btn-primary" onclick="sair()">Sair</button>
-      </div>
-    </aside>
+<script>
 
-    <main class="content">
-      <section class="hero">
-        <h1>Painel do Estabelecimento</h1>
-        <p>Gerencie produtos, pedidos e sua loja em um só lugar.</p>
-        <div class="badge" id="hero-loja">Loja logada: carregando...</div>
-      </section>
+const API = "https://delivery-saas-production-caba.up.railway.app";
 
-      <section class="stats">
-        <div class="stat">
-          <div class="stat-title">Produtos</div>
-          <div class="stat-value" id="stat-produtos">0</div>
-        </div>
-        <div class="stat">
-          <div class="stat-title">Pedidos</div>
-          <div class="stat-value" id="stat-pedidos">0</div>
-        </div>
-        <div class="stat">
-          <div class="stat-title">Pendentes</div>
-          <div class="stat-value" id="stat-pendentes">0</div>
-        </div>
-        <div class="stat">
-          <div class="stat-title">Faturamento</div>
-          <div class="stat-value" id="stat-faturamento">R$ 0,00</div>
-        </div>
-      </section>
+function abrir(tela) {
 
-      <section class="grid">
-        <div class="card">
-          <h2>Últimos pedidos</h2>
-          <div id="lista-pedidos">Carregando...</div>
-        </div>
+  if (tela === "dashboard") {
+    document.getElementById("conteudo").innerHTML = `
+      <h2>Dashboard</h2>
+      <p>Bem vindo ao painel</p>
+    `;
+  }
 
-        <div class="card">
-          <h2>Resumo da loja</h2>
-          <div id="resumo-loja">Carregando...</div>
-        </div>
-      </section>
-    </main>
-  </div>
+  if (tela === "produtos") {
+    carregarProdutos();
+  }
 
-  <script>
-    const API_URL = "https://delivery-saas-production-caba.up.railway.app";
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (tela === "categorias") {
+    document.getElementById("conteudo").innerHTML = `
+      <h2>Categorias</h2>
+      <p>Em breve</p>
+    `;
+  }
 
-    if (!usuario) {
-      window.location.href = "/login.html";
-    }
+  if (tela === "pedidos") {
+    carregarPedidos();
+  }
 
-    const EMPRESA_ID = usuario.empresa_id;
+  if (tela === "loja") {
+    carregarLoja();
+  }
+}
 
-    function formatarMoeda(valor) {
-      return Number(valor || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    }
+// PRODUTOS
+async function carregarProdutos() {
+  const res = await fetch(API + "/produtos");
+  const dados = await res.json();
 
-    function sair() {
-      localStorage.removeItem("usuario");
-      window.location.href = "/login.html";
-    }
+  let html = "<h2>Produtos</h2>";
 
-    function renderLoja() {
-      document.getElementById("sidebar-nome").textContent =
-        usuario.empresa_nome || "Sem nome";
+  dados.forEach(p => {
+    html += `<p>${p.nome} - R$ ${p.preco}</p>`;
+  });
 
-      document.getElementById("sidebar-categoria").textContent =
-        usuario.categoria || "Sem categoria";
+  document.getElementById("conteudo").innerHTML = html;
+}
 
-      document.getElementById("sidebar-telefone").textContent =
-        usuario.telefone || "";
+// PEDIDOS
+async function carregarPedidos() {
+  const res = await fetch(API + "/pedidos");
+  const dados = await res.json();
 
-      document.getElementById("sidebar-horario").textContent =
-        usuario.horario || "";
+  let html = "<h2>Pedidos</h2>";
 
-      document.getElementById("hero-loja").textContent =
-        `Loja logada: ${usuario.empresa_nome || "Sem nome"}`;
+  dados.forEach(p => {
+    html += `<p>Pedido #${p.id} - ${p.nome}</p>`;
+  });
 
-      document.getElementById("resumo-loja").innerHTML = `
-        <div class="resumo-linha"><strong>Nome:</strong> ${usuario.empresa_nome || "-"}</div>
-        <div class="resumo-linha"><strong>Email:</strong> ${usuario.email || "-"}</div>
-        <div class="resumo-linha"><strong>Telefone:</strong> ${usuario.telefone || "-"}</div>
-        <div class="resumo-linha"><strong>Categoria:</strong> ${usuario.categoria || "-"}</div>
-        <div class="resumo-linha"><strong>Horário:</strong> ${usuario.horario || "-"}</div>
-        <div class="resumo-linha"><strong>Slug:</strong> ${usuario.slug || "-"}</div>
-      `;
-    }
+  document.getElementById("conteudo").innerHTML = html;
+}
 
-    async function carregarProdutos() {
-      const res = await fetch(`${API_URL}/admin/produtos/${EMPRESA_ID}`);
-      const data = await res.json();
-      return data.produtos || [];
-    }
+// LOJA
+async function carregarLoja() {
+  const res = await fetch(API + "/empresa");
+  const dados = await res.json();
 
-    async function carregarPedidos() {
-      const res = await fetch(`${API_URL}/admin/pedidos/${EMPRESA_ID}`);
-      const data = await res.json();
-      return data.pedidos || [];
-    }
+  document.getElementById("conteudo").innerHTML = `
+    <h2>Minha Loja</h2>
+    <p>${dados.nome}</p>
+  `;
+}
 
-    async function iniciar() {
-      try {
-        renderLoja();
+</script>
 
-        const [produtos, pedidos] = await Promise.all([
-          carregarProdutos(),
-          carregarPedidos()
-        ]);
-
-        document.getElementById("stat-produtos").textContent = produtos.length;
-        document.getElementById("stat-pedidos").textContent = pedidos.length;
-
-        const pendentes = pedidos.filter(p => (p.status || "").toLowerCase() !== "entregue").length;
-        document.getElementById("stat-pendentes").textContent = pendentes;
-
-        const faturamento = pedidos.reduce((soma, p) => soma + Number(p.total || 0), 0);
-        document.getElementById("stat-faturamento").textContent = formatarMoeda(faturamento);
-
-        const lista = document.getElementById("lista-pedidos");
-
-        if (!pedidos.length) {
-          lista.innerHTML = `<div class="pedido-meta">Nenhum pedido recebido.</div>`;
-          return;
-        }
-
-        lista.innerHTML = pedidos.slice(0, 8).map(pedido => `
-          <div class="pedido-item">
-            <div class="pedido-top">
-              <div class="pedido-cliente">Pedido #${pedido.id} - ${pedido.cliente_nome || "Sem nome"}</div>
-              <div class="pedido-status">${pedido.status || "novo"}</div>
-            </div>
-            <div class="pedido-meta">
-              WhatsApp: ${pedido.cliente_whatsapp || "-"}<br>
-              Endereço: ${pedido.endereco || "-"}<br>
-              Total: ${formatarMoeda(pedido.total || 0)}
-            </div>
-          </div>
-        `).join("");
-      } catch (error) {
-        console.error(error);
-        document.getElementById("lista-pedidos").innerHTML =
-          `<div class="pedido-meta">Erro ao carregar pedidos.</div>`;
-        document.getElementById("resumo-loja").innerHTML =
-          `<div class="pedido-meta">Erro ao carregar loja.</div>`;
-      }
-    }
-
-    iniciar();
-  </script>
 </body>
 </html>
