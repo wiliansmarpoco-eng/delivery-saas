@@ -58,6 +58,12 @@ app.get("/admin.html", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
 });
 
+// CARDÁPIO PÚBLICO EM HTML
+app.get("/loja/:slug", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// LOGIN
 app.post("/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
@@ -202,7 +208,8 @@ app.put("/admin/empresa/:id", async (req, res) => {
   }
 });
 
-app.get("/produtos/:slug", async (req, res) => {
+// API DO CARDÁPIO
+app.get("/api/produtos/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
 
@@ -449,51 +456,6 @@ app.post("/admin/produtos", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       erro: "Erro ao criar produto",
-      detalhe: error.message,
-    });
-  }
-});
-
-app.put("/admin/produtos/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      nome,
-      descricao,
-      preco,
-      imagem_url,
-      ativo,
-      empresa_id,
-      categoria_id,
-    } = req.body;
-
-    const result = await query(
-      `UPDATE produtos
-       SET nome = $1,
-           descricao = $2,
-           preco = $3,
-           imagem_url = $4,
-           ativo = $5,
-           empresa_id = $6,
-           categoria_id = $7
-       WHERE id = $8
-       RETURNING *`,
-      [
-        nome || "",
-        descricao || "",
-        preco || 0,
-        imagem_url || "",
-        ativo === false ? false : true,
-        empresa_id || null,
-        categoria_id || null,
-        id,
-      ]
-    );
-
-    res.json({ ok: true, produto: result.rows[0] });
-  } catch (error) {
-    res.status(500).json({
-      erro: "Erro ao atualizar produto",
       detalhe: error.message,
     });
   }
